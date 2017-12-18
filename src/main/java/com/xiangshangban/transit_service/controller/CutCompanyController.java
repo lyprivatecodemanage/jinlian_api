@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,13 +73,19 @@ public class CutCompanyController {
 		String userId = obj.getString("userId");
 		
 		try {
-			if(userId==null || "".equals(userId)){
-				map.put("returnCode", "4018");
-				map.put("message", "参数不完整");
+			if(StringUtils.isEmpty(userId)){
+				map.put("returnCode","3006");
+				map.put("message", "必传参数为空");
 				return map;
 			}
 			
-			List<UserCompanyDefault> list = userCompanyService.selectByUserId(userId);
+			List<UusersRolesKey> urlist = uusersRolesService.selectCompanyByUserIdRoleId(userId, new Uroles().admin_role);
+			
+			List<UserCompanyDefault> list = new ArrayList<>();
+			
+			for (UusersRolesKey uusersRolesKey : urlist) {
+				 list.add(userCompanyService.selectByUserIdAndCompanyId(userId, uusersRolesKey.getCompanyId()));
+			}
 			
 			for (UserCompanyDefault userCompanyDefault : list) {
 				if(!"1".equals(userCompanyDefault.getCurrentOption().trim()) && userCompanyDefault.getCurrentOption().trim()!="1"){
@@ -273,7 +280,7 @@ public class CutCompanyController {
 			ucd.setCompanyId(company.getCompany_id());
 			ucd.setCurrentOption(ucd.status_2);
 			ucd.setIsActive(ucd.status_1);
-			ucd.setInfoStatus("0");
+			ucd.setInfoStatus(ucd.status_1);
 			
 			userCompanyService.insertSelective(ucd);
 			

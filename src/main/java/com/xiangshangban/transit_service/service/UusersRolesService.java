@@ -19,7 +19,7 @@ public interface UusersRolesService {
 	// 查看当前管理员及历史管理员
 	UusersRolesKey SelectAdministrator(String companyId, String roleId);
 
-	int updateAdminClearHist(String userId,String roleId);
+	int updateAdminClearHist(String userId,String roleId,String companyId);
 	
 	// 修改管理员
 	int updateAdministrator(String newUserId, String companyId, String historyUserIds, String roleId);
@@ -29,4 +29,6 @@ public interface UusersRolesService {
 
 	// 根据用户编号 和 公司编号 查询出角色信息
 	Uroles SelectRoleByUserId(String userId, String companyId);
+	
+	List<UusersRolesKey> selectCompanyByUserIdRoleId(String userId,String roleId);
 }

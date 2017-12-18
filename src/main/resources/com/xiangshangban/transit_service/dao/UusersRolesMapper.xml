@@ -77,6 +77,7 @@
   	update organization.u_users_roles
   	set history_user_ids = '',roleid = #{roleId,jdbcType=VARCHAR}
   	where userid = #{userId,jdbcType=VARCHAR}
+  	and company_id = #{companyId,jdbcType=VARCHAR}
   </update>
   
   <update id="updateAdministrator">
@@ -106,5 +107,12 @@
   	where userid = #{userId,jdbcType=VARCHAR}
   	and company_id = #{companyId,jdbcType=VARCHAR}
   	)
+  </select>
+  <select id="selectCompanyByUserIdRoleId" resultMap="BaseResultMap">
+  	select
+  	<include refid="BaseList"/>
+  	from u_users_roles
+  	where userid = #{userId}
+  	and roleid = #{roleId}
   </select>
 </mapper>

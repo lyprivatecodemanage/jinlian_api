@@ -61,9 +61,15 @@ public class UusersRolesServiceImpl implements UusersRolesService {
 	}
 
 	@Override
-	public int updateAdminClearHist(String userId,@Param("roleId")String roleId) {
+	public int updateAdminClearHist(String userId,String roleId,String companyId) {
 		// TODO Auto-generated method stub
-		return uusersRolesMapper.updateAdminClearHist(userId, roleId);
+		return uusersRolesMapper.updateAdminClearHist(userId, roleId,companyId);
+	}
+
+	@Override
+	public List<UusersRolesKey> selectCompanyByUserIdRoleId(String userId, String roleId) {
+		// TODO Auto-generated method stub
+		return uusersRolesMapper.selectCompanyByUserIdRoleId(userId, roleId);
 	}
 
 }

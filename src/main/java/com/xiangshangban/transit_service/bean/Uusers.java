@@ -23,6 +23,8 @@ public class Uusers {
     private String wechatCode;
     private String wechatName;
     private String isActive;
+    private String departmentId;
+    private String operaterTime;
     private List<Uroles> UrolesList;
 
     public Uusers() {
@@ -174,4 +176,19 @@ public class Uusers {
 	public void setIsActive(String isActive) {
 		this.isActive = isActive;
 	}
+	public String getDepartmentId() {
+		return departmentId;
+	}
+	public void setDepartmentId(String departmentId) {
+		this.departmentId = departmentId;
+	}
+
+	public String getOperaterTime() {
+		return operaterTime;
+	}
+
+	public void setOperaterTime(String operaterTime) {
+		this.operaterTime = operaterTime;
+	}
+	
 }

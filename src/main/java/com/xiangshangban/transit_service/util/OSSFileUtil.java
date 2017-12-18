@@ -272,7 +272,7 @@ public class OSSFileUtil {
 			} catch (IOException e) {
 				LOG.info("获取OSS环境属性错误");
 			}
-	    	return "http://" +OSS_BUCKET_PRE +"." + OSS_ENDPOINT_PRE + "/"+filePath + "/" + key;
+	    	return "http://" +OSS_BUCKET +"." + OSS_ENDPOINT + "/"+filePath + "/" + key;
 		}	
 		return "";	
     }

@@ -145,6 +145,7 @@ public class RegisterController {
 				map.put("message", "服务器错误");
                 return map;
             }
+
             try {
             	if(companyName.indexOf("(")>0){
             		companyName = companyName.replaceAll("[\\(\\)]", "");
@@ -152,10 +153,10 @@ public class RegisterController {
             	if(companyName.indexOf("（")>0){
             		companyName = companyName.replaceAll("[\\（\\）]", "");
             	}
+            	// 生成公司创建时间
+                Date date = new Date(System.currentTimeMillis());
 				// 生成公司编号
                 companyId = FormatUtil.createUuid();
-				// 生成公司创建时间
-                Date date = new Date(System.currentTimeMillis());
 				// 创建新增公司对象
                 Company company = new Company();
                 company.setCompany_id(companyId);
@@ -215,6 +216,7 @@ public class RegisterController {
 				userCompanyKey.setUserId(userId);
 				userCompanyKey.setCurrentOption(userCompanyKey.status_1);
 				userCompanyKey.setIsActive(userCompanyKey.status_1);
+				userCompanyKey.setInfoStatus(userCompanyKey.status_1);
 				userCompanyService.insertSelective(userCompanyKey);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -269,6 +271,8 @@ public class RegisterController {
 				uu.setUsername(userName);
 				uu.setCompanyId(companyId);
 				uu.setPhone(phone);
+				uu.setDepartmentId(companyId);
+				uu.setOperaterTime(sdf.format(new Date()));
 				uusersService.insertEmployee(uu);
 
 			} catch (Exception e) {
@@ -285,7 +289,7 @@ public class RegisterController {
 			
 			try {
 				Department department = new Department();
-				department.setDepartmentId(FormatUtil.createUuid());
+				department.setDepartmentId(companyId);
 				department.setDepartmentName("全公司");
 				department.setDepartmentParentId("0");
 				department.setCompanyId(companyId);

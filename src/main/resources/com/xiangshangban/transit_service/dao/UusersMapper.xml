@@ -32,6 +32,18 @@
 		<result column="company_id" property="companyId" />
 		<result column="company_name" property="companyName" />
 	</resultMap>
+	
+	<resultMap type="com.xiangshangban.transit_service.bean.Employee" id="EmployeeMap">
+		<result column="employee_id" property="employeeId" />
+		<result column="employee_name" property="employeeName" />
+		<result column="login_name" property="loginName" />
+		<result column="employee_img_url" property="employeeImgUrl" />
+	</resultMap>
+	
+	<sql id="Employee_list">
+		employee_id,employee_name,login_name,employee_img_url
+	</sql>
+	
 	<sql id="Base_roles">
 		roleid,rolename,description
 	</sql>
@@ -122,7 +134,7 @@
 	<select id="selectById" parameterType="java.lang.String" resultMap="BaseResultMap">
 		select
 		<include refid="Base_Column_List" />
-		from organization.u_users
+		from u_users
 		where userid = #{userid}
 	</select>
 	
@@ -340,11 +352,19 @@
 	</delete>
 	
 	<insert id="insertEmployee" parameterType="com.xiangshangban.transit_service.bean.Uusers">
-		insert into employee_(employee_id,employee_name,company_id,login_name)
-		values(#{userid},#{username},#{companyId},#{phone})
+		insert into employee_(employee_id,employee_name,company_id,login_name,employee_sex,department_id,operater_time)
+		values(#{userid},#{username},#{companyId},#{phone},'',#{departmentId},#{operaterTime})
 	</insert>
 	
 	<select id="SelectEmployeeIdByPhone" parameterType="java.lang.String" resultType="java.lang.String">
 		select employee_id from employee_ where login_name=#{phone} LIMIT 1
+	</select>
+	
+	<select id="SeletctEmployeeByUserId" resultMap="EmployeeMap">
+		select
+		<include refid="Employee_list"/>
+		from employee_
+		where employee_id = #{userId}
+		and company_id = #{companyId}
 	</select>
 </mapper>

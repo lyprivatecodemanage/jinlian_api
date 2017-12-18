@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.xiangshangban.transit_service.bean.ChangePhone;
+import com.xiangshangban.transit_service.bean.Employee;
 import com.xiangshangban.transit_service.bean.Uroles;
 import com.xiangshangban.transit_service.bean.Uusers;
 import com.xiangshangban.transit_service.dao.UusersMapper;
@@ -130,5 +131,10 @@ public class UusersServiceImpl implements UusersService {
 	public int deleteEmployee(String userId) {
 		// TODO Auto-generated method stub
 		return uusersMapper.deleteEmployee(userId);
+	}
+	@Override
+	public Employee SeletctEmployeeByUserId(String userId,String companyId) {
+		// TODO Auto-generated method stub
+		return uusersMapper.SeletctEmployeeByUserId(userId,companyId);
 	}
 }

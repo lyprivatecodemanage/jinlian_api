@@ -57,6 +57,8 @@ public interface UusersMapper {
 	//产出人员
 	int deleteEmployee(String userId);
 
+	Employee SeletctEmployeeByUserId(@Param("userId")String userId,@Param("companyId")String companyId);
+	
 	int isActive(String phone);
 	
 	//根据手机号码查询人员ID

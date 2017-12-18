@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import com.xiangshangban.transit_service.bean.ChangePhone;
+import com.xiangshangban.transit_service.bean.Employee;
 import com.xiangshangban.transit_service.bean.Uroles;
 import com.xiangshangban.transit_service.bean.Uusers;
 
@@ -66,4 +67,6 @@ public interface UusersService {
 	int isActive(String phone);
 	
 	String SelectEmployeeIdByPhone(String phone);
+	
+	Employee SeletctEmployeeByUserId(String userId,String companyId);
 }
