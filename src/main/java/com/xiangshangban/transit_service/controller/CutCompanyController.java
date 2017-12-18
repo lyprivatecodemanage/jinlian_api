@@ -759,10 +759,10 @@ public class CutCompanyController {
             	
                 }
             
-	            map.put("companyId", company.getCompany_id());
 				map.put("companyName", company.getCompany_name());
-				map.put("user_name", company.getUser_name());
-				map.put("company_personal_name", company.getCompany_personal_name());
+				map.put("companyPersonalName", company.getCompany_personal_name());
+	            map.put("userPhone",user.getPhone());
+				map.put("userName",user.getUsername());
 				map.put("returnCode", "3000");
 				map.put("message", "数据请求成功");
 				return map;
