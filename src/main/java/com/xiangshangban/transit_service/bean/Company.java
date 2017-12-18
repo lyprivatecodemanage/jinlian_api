@@ -68,6 +68,8 @@ public class Company {
     private String company_no;
 
 	private String company_type;
+	
+	private String defaultOption;
 
 	public Company(String company_id, String company_name, String company_english_name,
 			String company_abbreviation_name, String company_address_detail, String company_phone, String company_email,
@@ -389,6 +391,14 @@ public class Company {
 
 	public void setCompany_type(String company_type) {
 		this.company_type = company_type;
+	}
+
+	public String getDefaultOption() {
+		return defaultOption;
+	}
+
+	public void setDefaultOption(String defaultOption) {
+		this.defaultOption = defaultOption;
 	}
 
 }

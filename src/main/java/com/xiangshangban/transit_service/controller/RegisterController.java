@@ -327,14 +327,11 @@ public class RegisterController {
                 	//使用手机号码查询出EmployeeID
                     String employeeId = uusersService.SelectEmployeeIdByPhone(phone);
                     //根据company_no查询出companyID
-                    Company companyT = companyService.selectByCompanyName(company_no);
+                    Company company = companyService.selectByCompanyName(company_no);
                     //根据EmployeeID 与 companyID查询 usercompany表  看是否存在记录 
                     //存在记录则已加入公司直接返回  不存在则继续操作
-                    UserCompanyDefault ucd = userCompanyService.selectByUserIdAndCompanyId(employeeId, companyT.getCompany_id());
+                    UserCompanyDefault ucd = userCompanyService.selectByUserIdAndCompanyId(employeeId, company.getCompany_id());
                 	
-					// 根据输入公司编号获的公司的实体
-                    Company company = companyService.selectByCompanyName(company_no);
-                    
                     if(ucd==null){
                     
 	                    Date joinDate = new Date();

@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -236,6 +237,12 @@ public class AdministratorController {
 			// 获取历史管理员
 			String huids = uusersRolesKey.gethistoryUserIds();
 			
+			if(userId.equals(newUserId)){
+				map.put("returnCode", "4025");
+				map.put("message", "更换的管理员不能是当前管理员");
+				return map;
+			}
+			
 			//如果历史管理员为空
 			if(StringUtils.isEmpty(huids)){
 				//删除上一位管理员的 历史管理员记录
@@ -263,7 +270,7 @@ public class AdministratorController {
 			//将原来管理员的默认公司修改为其他拥有管理员身份的公司
 			List<UusersRolesKey> urlist = uusersRolesService.selectCompanyByUserIdRoleId(userId, new Uroles().admin_role);
 			
-			if(urlist!=null){
+			if(urlist!=null&&urlist.size()!=0){
 				
 				List<UserCompanyDefault> list = new ArrayList<>();
 				
@@ -290,5 +297,4 @@ public class AdministratorController {
 			return map;
 		}
 	}
-	
 }
