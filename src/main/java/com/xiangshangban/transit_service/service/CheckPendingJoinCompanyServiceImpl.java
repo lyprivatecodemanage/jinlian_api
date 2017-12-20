@@ -42,4 +42,10 @@ public class CheckPendingJoinCompanyServiceImpl implements CheckPendingJoinCompa
 		// TODO Auto-generated method stub
 		return checkPendingJoinCompanyMapper.deleteById(userId,companyid);
 	}
+
+	@Override
+	public CheckPendingJoinCompany selectRecord(String userid, String companyid, String status) {
+		// TODO Auto-generated method stub
+		return checkPendingJoinCompanyMapper.selectRecord(userid, companyid, status);
+	}
 }

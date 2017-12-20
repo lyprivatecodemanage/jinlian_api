@@ -32,6 +32,10 @@ public interface UusersMapper {
     int updateByPrimaryKey(Uusers record);
     
     int updateSmsCode(@Param("phone")String phone,@Param("temporarypwd")String smsCode);
+    
+    int updateUserByPhone(Uusers uuser);
+    
+    Uusers selectUserByPhone(String phone);
 
     List<Uusers> selectListsByPhone(String phone);
     

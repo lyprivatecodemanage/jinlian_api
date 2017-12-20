@@ -15,6 +15,8 @@ public interface UusersService {
 	 
 	 Uusers selectByPrimaryKey(String userId);
 	 
+	 Uusers selectUserByPhone(String phone);
+	 
 	/**
 	 * 根据phone查询
 	 * 
@@ -57,6 +59,8 @@ public interface UusersService {
 	Uusers selectById(String userId);
 	
 	Uusers selectAdminByPhone(String phone, String roleId);
+	
+	int updateUserByPhone(Uusers uuser);
 	
 	int insertEmployee(Uusers uusers);
 	/**

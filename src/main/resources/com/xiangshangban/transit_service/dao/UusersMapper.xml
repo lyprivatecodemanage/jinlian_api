@@ -152,6 +152,12 @@
 		left join user_company uc on u.userid = uc.user_id and uc.current_option = '1'
 		where u.status = '1' and u.phone = #{phone}
 	</select>
+	<select id="selectUserByPhone" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List"/>
+		from u_users  
+		where phone = #{phone}
+	</select>
 	<select id="isActive" parameterType="java.lang.String" resultType="int">
 		select count(uc.company_id)
 		from u_users u,user_company uc 
@@ -301,6 +307,47 @@
 		</set>
 		where userid = #{userid}
 	</update>
+	
+	<update id="updateUserByPhone" parameterType="com.xiangshangban.transit_service.bean.Uusers">
+	update organization.u_users
+		<set>
+			<if test="account != null">
+				account = #{account},
+			</if>
+			<if test="userpwd != null">
+				userpwd = #{userpwd},
+			</if>
+			<if test="temporarypwd != null">
+				temporarypwd = #{temporarypwd},
+			</if>
+			<if test="salt != null">
+				salt = #{salt},
+			</if>
+			<if test="username != null">
+				username = #{username},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime},
+			</if>
+			<if test="lastLoginTime != null">
+				last_login_time = #{lastLoginTime},
+			</if>
+			<if test="status != null">
+				status = #{status},
+			</if>
+			<if test="wechatId != null">
+				wechat_id = #{wechatId},
+			</if>
+			<if test="wechatCode != null">
+				wechat_code = #{wechatCode},
+			</if>
+			<if test="wechatName != null">
+				wechat_name = #{wechatName},
+			</if>
+		</set>
+		where phone = #{phone}
+	</update>
+	
 	<update id="updateByPrimaryKey" parameterType="com.xiangshangban.transit_service.bean.Uusers">
 		update
 		organization.u_users

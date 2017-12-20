@@ -137,4 +137,14 @@ public class UusersServiceImpl implements UusersService {
 		// TODO Auto-generated method stub
 		return uusersMapper.SeletctEmployeeByUserId(userId,companyId);
 	}
+	@Override
+	public int updateUserByPhone(Uusers uuser) {
+		// TODO Auto-generated method stub
+		return uusersMapper.updateUserByPhone(uuser);
+	}
+	@Override
+	public Uusers selectUserByPhone(String phone) {
+		// TODO Auto-generated method stub
+		return uusersMapper.selectUserByPhone(phone);
+	}
 }
