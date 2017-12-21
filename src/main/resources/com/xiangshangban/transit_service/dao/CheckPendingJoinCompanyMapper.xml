@@ -2,12 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.xiangshangban.transit_service.dao.CheckPendingJoinCompanyMapper" >
   <resultMap id="BaseResultMap" type="com.xiangshangban.transit_service.bean.CheckPendingJoinCompany" >
-    <constructor >
-      <idArg column="userid" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="companyid" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="status" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="applyTime" jdbcType="VARCHAR" javaType="java.lang.String" />
-    </constructor>
+      <result column="userid" property="userid" />
+      <result column="companyid" property="companyid"/>
+      <result column="status" property="status"  />
+      <result column="apply_time" property="applyTime"  />
   </resultMap>
   <sql id="Base_Column_List" >
     userid, companyid, status ,apply_time
@@ -18,6 +16,16 @@
     from check_pending_joincompany
     where userid = #{userid,jdbcType=VARCHAR}
   </select>
+  
+  <select id="selectRecord" resultMap="BaseResultMap" parameterType="com.xiangshangban.transit_service.bean.CheckPendingJoinCompany">
+  	select 
+    <include refid="Base_Column_List" />
+    from check_pending_joincompany
+    where userid = #{userid,jdbcType=VARCHAR}
+    and companyid =#{companyid,jdbcType=VARCHAR}
+    and status =#{status,jdbcType=VARCHAR}
+  </select>
+  
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
     delete from check_pending_joincompany
     where userid = #{userid,jdbcType=VARCHAR}

@@ -85,34 +85,66 @@ public class RegisterController {
             return map;
         }
         try {
-			// 从redis中获取之前存入的验证码 判断是否还在有效期
-            RedisUtil redis = RedisUtil.getInstance();
-            String redisTemporaryPwd = redis.new Hash().hget("smsCode_"+phone, "smsCode");
-            if (temporaryPwd.equals(redisTemporaryPwd)) {
-                if(redisTemporaryPwd!=null){
-					// 生成UUID作为用户编号
-                    userId = FormatUtil.createUuid();
-					// 获取系统时间作为用户创建时间
-                    Date date = new Date(System.currentTimeMillis());
-					// 创建新增实体
-                    Uusers uUsers = new Uusers();
-                    uUsers.setUserid(userId);
-                    uUsers.setPhone(phone);
-                    uUsers.setTemporarypwd(temporaryPwd);
-                    uUsers.setUsername(userName);
-                    uUsers.setCreateTime(sdf.format(date));
-                    uUsers.setStatus(Uusers.status_0);
-                    uusersService.insertSelective(uUsers);
-                }else{
-                    map.put("returnCode", "4001");
-					map.put("message", "验证码失效");
+        	Uusers uuser = uusersService.selectUserByPhone(phone);
+        	
+        	if(uuser==null){
+        		// 从redis中获取之前存入的验证码 判断是否还在有效期
+                RedisUtil redis = RedisUtil.getInstance();
+                String redisTemporaryPwd = redis.new Hash().hget("smsCode_"+phone, "smsCode");
+                if (temporaryPwd.equals(redisTemporaryPwd)) {
+                    if(redisTemporaryPwd!=null){
+    					// 生成UUID作为用户编号
+                        userId = FormatUtil.createUuid();
+    					// 获取系统时间作为用户创建时间
+                        Date date = new Date(System.currentTimeMillis());
+    					// 创建新增实体
+                        Uusers uUsers = new Uusers();
+                        uUsers.setUserid(userId);
+                        uUsers.setPhone(phone);
+                        uUsers.setTemporarypwd(temporaryPwd);
+                        uUsers.setUsername(userName);
+                        uUsers.setCreateTime(sdf.format(date));
+                        uUsers.setStatus(Uusers.status_0);
+                        uusersService.insertSelective(uUsers);
+                    }else{
+                        map.put("returnCode", "4001");
+    					map.put("message", "验证码失效");
+                        return map;
+                    }
+                } else {
+                    map.put("returnCode", "4002");
+    				map.put("message", "验证码错误");
                     return map;
                 }
-            } else {
-                map.put("returnCode", "4002");
-				map.put("message", "验证码错误");
-                return map;
-            }
+        	}else if(uuser!=null&&uuser.getStatus().equals("0")){
+        		// 从redis中获取之前存入的验证码 判断是否还在有效期
+                RedisUtil redis = RedisUtil.getInstance();
+                String redisTemporaryPwd = redis.new Hash().hget("smsCode_"+phone, "smsCode");
+                if (temporaryPwd.equals(redisTemporaryPwd)) {
+                    if(redisTemporaryPwd!=null){
+                    	userId = uuser.getUserid();
+    					// 获取系统时间作为用户创建时间
+                        Date date = new Date(System.currentTimeMillis());
+    					// 创建新增实体
+                        Uusers uUsers = new Uusers();
+                        uUsers.setPhone(phone);
+                        uUsers.setTemporarypwd(temporaryPwd);
+                        uUsers.setUsername(userName);
+                        uUsers.setCreateTime(sdf.format(date));
+                        uUsers.setStatus(Uusers.status_0);
+                        uusersService.updateUserByPhone(uUsers);
+                    }else{
+                        map.put("returnCode", "4001");
+    					map.put("message", "验证码失效");
+                        return map;
+                    }
+                } else {
+                    map.put("returnCode", "4002");
+    				map.put("message", "验证码错误");
+                    return map;
+                }
+        	}
+			
         }catch(NullPointerException e){
         	e.printStackTrace();
         	logger.info(e);
@@ -333,17 +365,17 @@ public class RegisterController {
                     UserCompanyDefault ucd = userCompanyService.selectByUserIdAndCompanyId(employeeId, company.getCompany_id());
                 	
                     if(ucd==null){
-                    
-	                    Date joinDate = new Date();
-	                    
-						// 加入公司 新增待审核表记录
-		                CheckPendingJoinCompany checkPendingJoinCompany = new CheckPendingJoinCompany();
-		                checkPendingJoinCompany.setUserid(userId);
-		                checkPendingJoinCompany.setCompanyid(company.getCompany_id());
-		                checkPendingJoinCompany.setStatus(checkPendingJoinCompany.status_0);
-		                checkPendingJoinCompany.setApplyTime(sdf.format(joinDate));
-		                checkPendingJoinCompanyService.insertSelective(checkPendingJoinCompany);
-	            	
+                    	CheckPendingJoinCompany cpjc = checkPendingJoinCompanyService.selectRecord(userId, company.getCompany_id(),"0");
+                    	if(cpjc==null){
+		                    Date joinDate = new Date();
+							// 加入公司 新增待审核表记录
+			                CheckPendingJoinCompany checkPendingJoinCompany = new CheckPendingJoinCompany();
+			                checkPendingJoinCompany.setUserid(userId);
+			                checkPendingJoinCompany.setCompanyid(company.getCompany_id());
+			                checkPendingJoinCompany.setStatus(checkPendingJoinCompany.status_0);
+			                checkPendingJoinCompany.setApplyTime(sdf.format(joinDate));
+			                checkPendingJoinCompanyService.insertSelective(checkPendingJoinCompany);
+                    	}
                     }
 					// 审核通过
 					// if(1==1){
@@ -491,10 +523,9 @@ public class RegisterController {
     public Map<String, Object> SelectByPhone(String phone,HttpServletRequest request) {
         Map<String, Object> map = new HashMap<String, Object>();
         try {
-			// 查询条件为手机号，统计用户表中是否有用户使用了这个手机号
-            int count = uusersService.SelectCountByPhone(phone);
+            Uusers uuser = uusersService.selectUserByPhone(phone);
 			// 判断手机号是否被注册
-            if (count > 0) {
+            if (uuser!=null&&uuser.getStatus().equals("1")) {
                 map.put("status", "1");
                 map.put("returnCode", "4005");
 				map.put("message", "已注册");
