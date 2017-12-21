@@ -410,19 +410,19 @@ public class CutCompanyController {
 				if(userCompanyDefault.getCurrentOption()!="1"&&!"1".equals(userCompanyDefault.getCurrentOption())){
 					Company company = companyService.selectByPrimaryKey(userCompanyDefault.getCompanyId());
 					Map<String,Object> comMap = new HashMap<>();
-					comMap.put("company_name", company.getCompany_name());
-					comMap.put("company_id", company.getCompany_id());
-					comMap.put("company_personal_name", company.getCompany_personal_name());
-					comMap.put("user_name", company.getUser_name());
+					comMap.put("companyName", company.getCompany_name());
+					comMap.put("companyId", company.getCompany_id());
+					comMap.put("companyPersonalName", company.getCompany_personal_name());
+					comMap.put("userPhone", company.getUser_name());
 					comMap.put("DefaultOption","0");
 					conpanyList.add(comMap);
 				}else{
 					Company company = companyService.selectByPrimaryKey(userCompanyDefault.getCompanyId());
 					Map<String,Object> comMap = new HashMap<>();
-					comMap.put("company_name", company.getCompany_name());
-					comMap.put("company_id", company.getCompany_id());
-					comMap.put("company_personal_name", company.getCompany_personal_name());
-					comMap.put("user_name", company.getUser_name());
+					comMap.put("companyName", company.getCompany_name());
+					comMap.put("companyId", company.getCompany_id());
+					comMap.put("companyPersonalName", company.getCompany_personal_name());
+					comMap.put("userPhone", company.getUser_name());
 					comMap.put("DefaultOption","1");
 					conpanyList.add(comMap);
 				}
