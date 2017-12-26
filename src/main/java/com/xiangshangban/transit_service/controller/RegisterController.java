@@ -259,6 +259,12 @@ public class RegisterController {
 				userCompanyKey.setCurrentOption(userCompanyKey.status_1);
 				userCompanyKey.setIsActive(userCompanyKey.status_1);
 				userCompanyKey.setInfoStatus(userCompanyKey.status_1);
+				
+				//web端
+				userCompanyKey.setType("0");
+				userCompanyService.insertSelective(userCompanyKey);
+				//app端
+				userCompanyKey.setType("1");
 				userCompanyService.insertSelective(userCompanyKey);
 			} catch (Exception e) {
 				e.printStackTrace();
