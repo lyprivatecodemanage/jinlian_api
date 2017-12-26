@@ -20,6 +20,7 @@ import com.xiangshangban.transit_service.service.OSSFileService;
 import com.xiangshangban.transit_service.service.UusersService;
 import com.xiangshangban.transit_service.util.HttpClientUtil;
 import com.xiangshangban.transit_service.util.OSSFileUtil;
+import com.xiangshangban.transit_service.util.RedisUtil;
 
 
 @RestController
@@ -42,16 +43,22 @@ public class OSSController {
 	public ReturnData appUpload(@RequestParam(value="file") MultipartFile file, 
 			@RequestParam(value="funcDirectory") String funcDirectory,HttpServletRequest request){ 
 		ReturnData returnData = new ReturnData();
+		RedisUtil redis = RedisUtil.getInstance();
 		//根据token获得当前用户id,公司id
 		String token = request.getHeader("token");
+		String type = request.getHeader("type");
 		Uusers user = new Uusers();
+		String phone = "";
 		if (StringUtils.isEmpty(token)) {
 			String sessionId = request.getSession().getId();
 			System.out.println("redirectController : "+sessionId);
-			user = uusersService.selectCompanyBySessionId(sessionId);
+			//user = uusersService.selectCompanyBySessionId(sessionId);
+			phone = redis.getJedis().hget(sessionId, "session");
 		} else {
-			user = uusersService.selectCompanyByToken(token);
+			phone = redis.getJedis().hget(token, "token");
+			//user = uusersService.selectCompanyByToken(token);
 		}
+		user = uusersService.selectByPhone(phone,type);
 
 		if (user == null || StringUtils.isEmpty(user.getCompanyId()) || StringUtils.isEmpty(user.getUserid())) {
 			
@@ -94,18 +101,22 @@ public class OSSController {
 	 */
 	@RequestMapping(value = "/getPath",produces = "application/json;charset=UTF-8",method=RequestMethod.GET)
 	public String appGetPath(String key,@RequestParam String funcDirectory,HttpServletRequest request){
-		
+		RedisUtil redis = RedisUtil.getInstance();
+		String type = request.getHeader("type");
 		//根据token获得当前用户id,公司id
 		String token = request.getHeader("token");
 		Uusers user = new Uusers();
+		String phone = "";
 		if (StringUtils.isEmpty(token)) {
 			String sessionId = request.getSession().getId();
 			System.out.println("redirectController : "+sessionId);
-			user = uusersService.selectCompanyBySessionId(sessionId);
+			//user = uusersService.selectCompanyBySessionId(sessionId);
+			phone = redis.getJedis().hget(sessionId, "session");
 		} else {
-			user = uusersService.selectCompanyByToken(token);
+			phone = redis.getJedis().hget(token, "token");
+			//user = uusersService.selectCompanyByToken(token);
 		}
-
+		user = uusersService.selectByPhone(phone,type);
 		if (user == null || StringUtils.isEmpty(user.getCompanyId()) || StringUtils.isEmpty(user.getUserid())) {
 			ReturnData returnData = new ReturnData();
 			returnData.setReturnCode("3003");
