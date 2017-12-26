@@ -21,7 +21,7 @@ public interface UserCompanyService {
     
     UserCompanyDefault selectBySoleUserId(String userId);
     
-    UserCompanyDefault selectByUserIdAndCompanyId(String userId,String companyId);
+    UserCompanyDefault selectByUserIdAndCompanyId(String userId,String companyId,String type);
     
     int updateUserCompanyCoption(String userId,String companyId,String option);
 }

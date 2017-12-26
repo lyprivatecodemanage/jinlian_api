@@ -32,7 +32,7 @@
 		select 
 		<include refid="Base_Column_List"/>
 		from user_company
-		where user_id = #{userId} and company_id = #{companyId}
+		where user_id = #{userId} and company_id = #{companyId} and type = #{type}
 	</select>
 	
 	<delete id="deleteByPrimaryKey" parameterType="com.xiangshangban.transit_service.bean.UserCompanyDefault" >

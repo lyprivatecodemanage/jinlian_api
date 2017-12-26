@@ -20,7 +20,7 @@ public interface UserCompanyDefaultMapper {
 	
 	UserCompanyDefault selectBySoleUserId(String userId);
 	
-	UserCompanyDefault selectByUserIdAndCompanyId(@Param("userId")String userId,@Param("companyId") String companyId);
+	UserCompanyDefault selectByUserIdAndCompanyId(@Param("userId")String userId,@Param("companyId") String companyId,@Param("type")String type);
 	
 	int updateUserCompanyCoption(@Param("userId")String userId,@Param("companyId")String companyId,@Param("option")String option);
 }

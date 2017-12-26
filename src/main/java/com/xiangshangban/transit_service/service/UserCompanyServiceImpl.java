@@ -37,9 +37,9 @@ public class UserCompanyServiceImpl implements UserCompanyService {
 		// TODO Auto-generated method stub
 		return userCompanyDefaultMapper.selectBySoleUserId(userId);
 	}
-		public UserCompanyDefault selectByUserIdAndCompanyId(String userId, String companyId) {
+		public UserCompanyDefault selectByUserIdAndCompanyId(String userId, String companyId,String type) {
 		// TODO Auto-generated method stub
-		return userCompanyDefaultMapper.selectByUserIdAndCompanyId(userId, companyId);
+		return userCompanyDefaultMapper.selectByUserIdAndCompanyId(userId, companyId,type);
 	}
 
 		@Override

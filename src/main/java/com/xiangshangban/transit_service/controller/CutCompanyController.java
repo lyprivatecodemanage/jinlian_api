@@ -1,15 +1,12 @@
 package com.xiangshangban.transit_service.controller;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpRequest;
 import org.apache.log4j.Logger;
@@ -19,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.xiangshangban.transit_service.bean.CheckPendingJoinCompany;
@@ -38,11 +34,9 @@ import com.xiangshangban.transit_service.service.UusersRolesService;
 import com.xiangshangban.transit_service.service.UusersService;
 import com.xiangshangban.transit_service.util.FormatUtil;
 import com.xiangshangban.transit_service.util.PinYin2Abbreviation;
-
 @RestController
 @RequestMapping("/CutCompanyController")
 public class CutCompanyController {
-
 	Logger logger = Logger.getLogger(CutCompanyController.class);
 	
 	@Autowired
@@ -94,7 +88,7 @@ public class CutCompanyController {
 			List<UserCompanyDefault> list = new ArrayList<>();
 			
 			for (UusersRolesKey uusersRolesKey : urlist) {
-				 list.add(userCompanyService.selectByUserIdAndCompanyId(userId, uusersRolesKey.getCompanyId()));
+				 list.add(userCompanyService.selectByUserIdAndCompanyId(userId, uusersRolesKey.getCompanyId(),"0"));
 			}
 			
 			for (UserCompanyDefault userCompanyDefault : list) {
@@ -148,7 +142,6 @@ public class CutCompanyController {
 			}
 			
 			List<UserCompanyDefault> list = userCompanyService.selectByUserId(userId);
-
 			String companyId = "";
 			
 			for (UserCompanyDefault userCompanyDefault : list) {
@@ -330,10 +323,10 @@ public class CutCompanyController {
 			map.put("message", "服务器错误");
             return map;
 		}
-
 		try {
 			//生成  员工表
 			uuser.setCompanyId(company.getCompany_id());
+			uuser.setDepartmentId(company.getCompany_id());
 			uusersService.insertEmployee(uuser);
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -350,7 +343,7 @@ public class CutCompanyController {
 		try {
 			//创建公司默认生成   全公司   部门
 			Department department = new Department();
-			department.setDepartmentId(FormatUtil.createUuid());
+			department.setDepartmentId(company.getCompany_id());
 			department.setDepartmentName("全公司");
 			department.setDepartmentParentId("0");
 			department.setCompanyId(company.getCompany_id());
@@ -378,7 +371,6 @@ public class CutCompanyController {
 		}
 	}
 	
-
 	/***
 	 *  焦振/APP 查看登录用户所属所有公司
 	 * @param request
@@ -470,7 +462,6 @@ public class CutCompanyController {
 			String userId = user.getUserid();
 			
 			List<UserCompanyDefault> list = userCompanyService.selectByUserId(userId);
-
 			String companyId = "";
 			
 			for (UserCompanyDefault userCompanyDefault : list) {
@@ -711,6 +702,34 @@ public class CutCompanyController {
 	}
 	
 	/***
+	 *  焦振 / APP 根据公司编号查看公司信息
+	 * @param companyNo
+	 * @param request
+	 * @return
+	 */
+	@Transactional
+	@RequestMapping(value="/appSelectCompanyByCompanyNo",method=RequestMethod.POST)
+	public Map<String,Object> appSelectCompanyByCompanyNo(String companyNo,HttpServletRequest request){
+		Map<String,Object> map = new HashMap<>();
+
+		try {
+			Company company = companyService.selectByCompanyName(companyNo);
+			
+			map.put("company",company);
+			map.put("returnCode", "3000");
+			map.put("message", "数据请求成功");
+			return map;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			logger.info(e);
+			map.put("returnCode", "3001");
+			map.put("message", "服务器错误");
+            return map;
+		}
+	}
+	
+	/***
 	 *  焦振 / APP 加入其它公司
 	 * @param companyNo
 	 * @param request
@@ -743,7 +762,7 @@ public class CutCompanyController {
                 Company company = companyService.selectByCompanyName(companyNo);
                 //根据 userId 与 companyID查询 usercompany表  看是否存在记录 
                 //存在记录则已加入公司直接返回  不存在则继续操作
-                UserCompanyDefault ucd = userCompanyService.selectByUserIdAndCompanyId(userId,company.getCompany_id());
+                UserCompanyDefault ucd = userCompanyService.selectByUserIdAndCompanyId(userId,company.getCompany_id(),"1");
                 
                 if(ucd==null){
                 

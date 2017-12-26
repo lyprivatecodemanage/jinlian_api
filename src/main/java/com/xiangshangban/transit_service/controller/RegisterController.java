@@ -69,7 +69,7 @@ public class RegisterController {
     
     @Transactional
     @RequestMapping(value = "/registerUsers", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
-    public Map<String, Object> registerUsers(String phone,String temporaryPwd,String userName,String companyName,String company_no,String type) {
+    public Map<String, Object> registerUsers(String phone,String temporaryPwd,String userName,String companyName,String company_no,String type,HttpServletRequest request) {
 
         Map<String, Object> map = new HashMap<String, Object>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -361,8 +361,11 @@ public class RegisterController {
                     //根据company_no查询出companyID
                     Company company = companyService.selectByCompanyName(company_no);
                     //根据EmployeeID 与 companyID查询 usercompany表  看是否存在记录 
-                    //存在记录则已加入公司直接返回  不存在则继续操作
-                    UserCompanyDefault ucd = userCompanyService.selectByUserIdAndCompanyId(employeeId, company.getCompany_id());
+                    
+                    String WebAppType = request.getHeader("type");
+                    
+                  //存在记录则已加入公司直接返回  不存在则继续操作
+                    UserCompanyDefault ucd = userCompanyService.selectByUserIdAndCompanyId(employeeId, company.getCompany_id(),WebAppType);
                 	
                     if(ucd==null){
                     	CheckPendingJoinCompany cpjc = checkPendingJoinCompanyService.selectRecord(userId, company.getCompany_id(),"0");

@@ -275,7 +275,7 @@ public class AdministratorController {
 				List<UserCompanyDefault> list = new ArrayList<>();
 				
 				for (UusersRolesKey urk : urlist) {
-					 list.add(userCompanyService.selectByUserIdAndCompanyId(userId, urk.getCompanyId()));
+					 list.add(userCompanyService.selectByUserIdAndCompanyId(userId, urk.getCompanyId(),"1"));
 				}
 				
 				int num = userCompanyService.updateUserCompanyCoption(userId, companyId, new UserCompanyDefault().status_2);
