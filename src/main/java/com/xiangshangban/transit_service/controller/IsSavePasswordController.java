@@ -109,6 +109,7 @@ public class IsSavePasswordController {
 				result.put("voucher", voucher);
 			}
 			result.put("returnCode", "3000");
+			result.put("message", "成功");
 			return result;
 		}catch(Exception e){
 			logger.info(e);
@@ -131,26 +132,20 @@ public class IsSavePasswordController {
 		Map<String,Object> result =new HashMap<String,Object>();
 		JSONObject obj = JSON.parseObject(jsonString);
 		try{
+			Subject subject = SecurityUtils.getSubject();
 			String phone = obj.getString("phone");
 			String newPassword = obj.getString("newPassword");
-			String voucher = obj.getString("voucher");
-			if(StringUtils.isEmpty(phone)||StringUtils.isEmpty(newPassword)||StringUtils.isEmpty(voucher)){
+			if(StringUtils.isEmpty(phone)||StringUtils.isEmpty(newPassword)){
 				result.put("message", "必传参数为空");
 				result.put("returnCode", "3006");
 				return result;
 			}
-			RedisUtil redis = RedisUtil.getInstance();
-			String redisVoucher = redis.getJedis().hget("voucher"+phone, "voucher");
-			if(StringUtils.isEmpty(redisVoucher)){
-				result.put("message", "连接超时,请重新操作");
-				result.put("returnCode", "");
-				return result;
-			}
-			if(redisVoucher.equals(voucher)){
+			boolean flag = subject.isAuthenticated();
+			if(flag){
 				Uusers user = uusersService.selectUserByPhone(phone);
 				if(user == null){
-					result.put("message", "此手机号不存在");
-					result.put("returnCode", "");
+					result.put("message", "手机号不存在");
+					result.put("returnCode", "4004");
 					return result;
 				}else {
 					user.setUserpwd(newPassword);
@@ -158,14 +153,44 @@ public class IsSavePasswordController {
 					if(i>0){
 						result.put("message", "成功");
 					}else{
-						result.put("message", "未知错误,请联系管理员");
+						result.put("message", "服务器错误");
 					}
 				}
-				
 			}else{
-				result.put("message", "非法凭证");
-				result.put("returnCode", "");
-				return result;
+				String voucher = obj.getString("voucher");
+				if(StringUtils.isEmpty(voucher)){
+					result.put("message", "必传参数为空");
+					result.put("returnCode", "3006");
+					return result;
+				}
+				RedisUtil redis = RedisUtil.getInstance();
+				String redisVoucher = redis.getJedis().hget("voucher"+phone, "voucher");
+				if(StringUtils.isEmpty(redisVoucher)){
+					result.put("message", "连接超时,请重新操作");
+					result.put("returnCode", "4027");
+					return result;
+				}
+				if(redisVoucher.equals(voucher)){
+					Uusers user = uusersService.selectUserByPhone(phone);
+					if(user == null){
+						result.put("message", "手机号不存在");
+						result.put("returnCode", "4004");
+						return result;
+					}else {
+						user.setUserpwd(newPassword);
+						int i = uusersService.updatePaawordByPhone(user);
+						if(i>0){
+							result.put("message", "成功");
+						}else{
+							result.put("message", "服务器错误");
+						}
+					}
+					
+				}else{
+					result.put("message", "非法凭证");
+					result.put("returnCode", "4028");
+					return result;
+				}
 			}
 			result.put("returnCode", "3000");
 			return result;

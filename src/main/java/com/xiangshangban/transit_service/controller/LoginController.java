@@ -303,12 +303,10 @@ public class LoginController {
 			HttpServletRequest request) {
 		System.out.println("logingUser:\t"+session.getId());
 		Map<String, Object> result = new HashMap<String, Object>();
-		/*JSONObject obj =JSON.parseObject(jsonString);*/
-		/*String phone = obj.getString("phone");
-		String smsCode = obj.getString("smsCode");
-		String password = obj.getString("password");*/
+		String loginType = "0";
 		if(StringUtil.isEmpty(smsCode)){
 			smsCode = password;
+			loginType = "1";
 		}
 		RedisUtil redis = RedisUtil.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -344,15 +342,17 @@ public class LoginController {
 			}
 			// 初始化redis
 			// 从redis取出短信验证码
-			String redisSmsCode = redis.new Hash().hget("smsCode_" + phone, "smsCode");
-			if (StringUtils.isEmpty(redisSmsCode)) {
-				result.put("message", "验证码过期");
-				result.put("returnCode", "4001");
-				return result;
-			} else if (!redisSmsCode.equals(smsCode)) {
-				result.put("message", "验证码不正确");
-				result.put("returnCode", "4002");
-				return result;
+			if("0".equals(loginType)){
+				String redisSmsCode = redis.new Hash().hget("smsCode_" + phone, "smsCode");
+				if (StringUtils.isEmpty(redisSmsCode)) {
+					result.put("message", "验证码过期");
+					result.put("returnCode", "4001");
+					return result;
+				} else if (!redisSmsCode.equals(smsCode)) {
+					result.put("message", "验证码不正确");
+					result.put("returnCode", "4002");
+					return result;
+				}
 			}
 		}
 		try {
@@ -508,6 +508,7 @@ public class LoginController {
 					redis.getJedis().expire(token, 1800);
 				}
 				redis.getJedis().hset("token"+phone, "token", clientId);
+				redis.getJedis().expire("token"+phone, 1800);
 				this.changeLogin(phone, token, clientId, type);
 				result.put("token", token);
 			}
@@ -517,8 +518,10 @@ public class LoginController {
 				redis.getJedis().hset(sessionId, "session", phone);
 				redis.getJedis().expire(sessionId, 1800);
 				redis.getJedis().hset("session"+phone, "session", sessionId);
+				redis.getJedis().expire("session"+phone, 1800);
 				this.changeLogin(phone, sessionId, clientId, type);
 			}
+			phone = phone+"_"+loginType;
 			UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(phone, smsCode);
 			Subject subject = SecurityUtils.getSubject();
 			subject.login(usernamePasswordToken); // 完成登录

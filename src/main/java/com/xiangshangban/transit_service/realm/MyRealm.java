@@ -62,20 +62,24 @@ public class MyRealm extends AuthorizingRealm {
 	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
 		// token用户输入
 		// 第一步从token中取出身份信息
-		String userCode = token.getPrincipal().toString();
-		//System.out.println("=================>" + token.toString());
-		// 第二部:根据用户输入的userCode从数据库查询
-		// ....
+		String phone = token.getPrincipal().toString();
+		String[] array = phone.split("_");
+		phone = array[0];
+		String loginType = array[1];
 		// 根据从数据库查询到密码
-		Uusers user = usersService.selectUserByPhone(userCode);
+		Uusers user = usersService.selectUserByPhone(phone);
 		if (user == null) {
 			return null;
 		}
-		// String password = user.getUserpwd();
-		String password = user.getTemporarypwd();
-		// String password = "111111";
+		String password = "";
+		if("0".equals(loginType)){
+			password = user.getTemporarypwd();
+		}
+		if("1".equals(loginType)){
+			password = user.getUserpwd();
+		}
 		// 如果查询到返回认证信息AuthenticationInfo
-		SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo(userCode, password,
+		SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo(phone, password,
 				this.getName());
 
 		return simpleAuthenticationInfo;
