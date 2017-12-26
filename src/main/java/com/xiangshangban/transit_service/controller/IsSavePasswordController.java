@@ -34,7 +34,7 @@ public class IsSavePasswordController {
 	 * @author 李业/是否已设置密码
 	 * @return
 	 */
-	@RequestMapping(value="/isSavePasswd")
+	@RequestMapping(value="/isSavePasswd",method=RequestMethod.POST)
 	public Map<String,Object> isSavePasswd(HttpServletRequest request){
 		Map<String,Object> result =new HashMap<String,Object>();
 		String type = request.getHeader("type");
@@ -48,6 +48,7 @@ public class IsSavePasswordController {
 				return result;
 			}
 			result.put("returnCode", "3000");
+			result.put("messge", "成功");
 			return result;
 		}catch(Exception e){
 			logger.info(e);

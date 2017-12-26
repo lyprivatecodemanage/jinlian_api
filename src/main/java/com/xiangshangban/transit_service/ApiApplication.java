@@ -61,16 +61,17 @@ public class ApiApplication {
 		return registrationBean;
 	}
 
-	@Bean
+/*	@Bean
 	public EmbeddedServletContainerCustomizer containerCustomizer() {
 		return new EmbeddedServletContainerCustomizer() {
 			@Override
 			public void customize(ConfigurableEmbeddedServletContainer container) {
 				container.setSessionTimeout(3600000);// 单位为毫秒
+				container.setSessionTimeout(3600000);// 单位为S
 			}
 		};
 	}
-
+*/
 	@Bean(name = "shiroFilter")
 	public ShiroFilterFactoryBean shiroFilter(@Qualifier("securityManager") SecurityManager manager) {
 		ShiroFilterFactoryBean bean = new ShiroFilterFactoryBean();

@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSON;
@@ -311,7 +312,8 @@ public class LoginController {
 	 */
 	@Transactional
 	@RequestMapping(value = "/loginUser", method = RequestMethod.POST)
-	public Map<String, Object> loginUser(String phone,String smsCode,String password,HttpSession session,
+	public Map<String, Object> loginUser(@RequestParam("phone")String phone,
+			@RequestParam("smsCode")String smsCode,@RequestParam("password")String password,HttpSession session,
 			HttpServletRequest request) {
 		System.out.println("logingUser:\t"+session.getId());
 		Map<String, Object> result = new HashMap<String, Object>();
