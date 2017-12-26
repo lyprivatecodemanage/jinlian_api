@@ -1,4 +1,5 @@
 package com.xiangshangban.transit_service.controller;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,6 +21,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.xiangshangban.transit_service.bean.CheckPendingJoinCompany;
 import com.xiangshangban.transit_service.bean.Company;
 import com.xiangshangban.transit_service.bean.Department;
+import com.xiangshangban.transit_service.bean.Employee;
 import com.xiangshangban.transit_service.bean.Uroles;
 import com.xiangshangban.transit_service.bean.UserCompanyDefault;
 import com.xiangshangban.transit_service.bean.Uusers;
@@ -27,12 +29,15 @@ import com.xiangshangban.transit_service.bean.UusersRolesKey;
 import com.xiangshangban.transit_service.service.CheckPendingJoinCompanyService;
 import com.xiangshangban.transit_service.service.CompanyService;
 import com.xiangshangban.transit_service.service.DepartmentService;
+import com.xiangshangban.transit_service.service.EmployeeService;
 import com.xiangshangban.transit_service.service.UniqueLoginService;
 import com.xiangshangban.transit_service.service.UserCompanyService;
 import com.xiangshangban.transit_service.service.UusersRolesService;
 import com.xiangshangban.transit_service.service.UusersService;
 import com.xiangshangban.transit_service.util.FormatUtil;
+import com.xiangshangban.transit_service.util.HttpClientUtil;
 import com.xiangshangban.transit_service.util.PinYin2Abbreviation;
+import com.xiangshangban.transit_service.util.PropertiesUtils;
 import com.xiangshangban.transit_service.util.RedisUtil;
 import com.xiangshangban.transit_service.util.RedisUtil.Hash;
 @RestController
@@ -60,6 +65,9 @@ public class CutCompanyController {
 	
 	@Autowired
 	CheckPendingJoinCompanyService checkPendingJoinCompanyService;
+	
+	@Autowired
+	EmployeeService employeeService;
 	
 	/***
 	 * 焦振/查看登录用户所属所有公司
@@ -353,6 +361,20 @@ public class CutCompanyController {
 			uuser.setCompanyId(company.getCompany_id());
 			uuser.setDepartmentId(company.getCompany_id());
 			uusersService.insertEmployee(uuser);
+			
+			//给设备发送更新人员信息
+			Employee employee = employeeService.selectByEmployee(userId,company.getCompany_id());
+			Company newCompany = companyService.selectByPrimaryKey(company.getCompany_id());
+		    employee.setCompanyNo(newCompany.getCompany_no());
+			List<Employee> cmdlist=new ArrayList<Employee>();
+			cmdlist.add(employee);
+			try {
+				String result = HttpClientUtil.sendRequet(PropertiesUtils.pathUrl("commandGenerate"), cmdlist);
+				logger.info("设备访问成功"+result);
+			} catch (IOException e) {
+				logger.info("将人员信息更新到设备模块时，获取路径出错");
+				e.printStackTrace();
+			}
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
@@ -493,6 +515,7 @@ public class CutCompanyController {
 			String userId = user.getUserid();
 			
 			List<UserCompanyDefault> list = userCompanyService.selectByUserId(userId,"1");
+			
 			String companyId = "";
 			
 			for (UserCompanyDefault userCompanyDefault : list) {
@@ -689,6 +712,20 @@ public class CutCompanyController {
 				//生成  员工表
 				uuser.setCompanyId(company.getCompany_id());
 				uusersService.insertEmployee(uuser);
+				
+				//给设备发送更新人员信息
+				Employee employee = employeeService.selectByEmployee(userId,company.getCompany_id());
+				Company newCompany = companyService.selectByPrimaryKey(company.getCompany_id());
+			    employee.setCompanyNo(newCompany.getCompany_no());
+				List<Employee> cmdlist=new ArrayList<Employee>();
+				cmdlist.add(employee);
+				try {
+					String result = HttpClientUtil.sendRequet(PropertiesUtils.pathUrl("commandGenerate"), cmdlist);
+					logger.info("设备访问成功"+result);
+				} catch (IOException e) {
+					logger.info("将人员信息更新到设备模块时，获取路径出错");
+					e.printStackTrace();
+				}
 			} catch (Exception e) {
 				// TODO: handle exception
 				e.printStackTrace();

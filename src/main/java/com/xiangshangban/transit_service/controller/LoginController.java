@@ -46,6 +46,7 @@ import com.xiangshangban.transit_service.util.FormatUtil;
 import com.xiangshangban.transit_service.util.PropertiesUtils;
 import com.xiangshangban.transit_service.util.RedisUtil;
 import com.xiangshangban.transit_service.util.YtxSmsUtil;
+import com.xiangshangban.transit_service.util.RedisUtil.Hash;
 @RestController
 @RequestMapping("/loginController")
 public class LoginController {
@@ -69,10 +70,11 @@ public class LoginController {
 	 * @return
 	 */
 	@RequestMapping("/getQrcode")
-	public Map<String, Object> getQrcode(String type, String companyId, HttpSession session) {
+	public Map<String, Object> getQrcode(String type, HttpSession session,HttpServletRequest request) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			String qrcode = "";
+			
 			// 登录
 			if (Integer.valueOf(type) == 0) {
 				String sessionId = session.getId();
@@ -94,8 +96,20 @@ public class LoginController {
 			if (Integer.valueOf(type) == 1) {
 
 				String format = "http://www.xiangshangban.com/show?shjncode=invite_";
+				String token = request.getHeader("token");
+				String WebAppType = request.getHeader("type");
+
+				// 初始化redis
+				RedisUtil redis = RedisUtil.getInstance();
+				// 从redis取出短信验证码
+				String phone = redis.new Hash().hget(token, "token");
+				
+				Uusers user = uusersService.selectByPhone(phone,WebAppType);
+				
+				String companyid = userCompanyService.selectBySoleUserId(user.getUserid(),WebAppType).getCompanyId();
+				
 				// 根据公司ID查询出公司编号 生成二维码
-				Company company = companyService.selectByPrimaryKey(companyId);
+				Company company = companyService.selectByPrimaryKey(companyid);
 				Map<String, String> invite = new HashMap<>();
 				invite.put("companyNo", company.getCompany_no());
 				invite.put("companyName", company.getCompany_name());

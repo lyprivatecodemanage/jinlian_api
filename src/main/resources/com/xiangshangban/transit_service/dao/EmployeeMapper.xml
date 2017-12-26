@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiangshangban.transit_service.dao.EmployeeMapper">
+	<resultMap type="com.xiangshangban.transit_service.bean.Employee"
+		id="EmployeeResultMap">
+		<result column="employee_id" property="employeeId" />
+		<result column="employee_name" property="employeeName" />
+		<result column="login_name" property="loginName" />
+		<result column="employee_sex" property="employeeSex" />
+		<result column="phone" property="phone" />
+		<result column="employee_phone" property="employeePhone" />
+		<result column="employee_twophone" property="employeeTwophone" />
+		<result column="post_id" property="postId" />
+		<result column="post_name" property="postName" />
+		<result column="department_id" property="departmentId" />
+		<result column="department_name" property="departmentName" />
+		<result column="employee_no" property="employeeNo" />
+		<result column="derect_person_name" property="directPersonName" />
+		<result column="entry_time" property="entryTime" />
+		<result column="probationary_expired" property="probationaryExpired" />
+		<result column="work_address" property="workAddress" />
+		<result column="marriage_status" property="marriageStatus" />
+		<result column="seniority" property="seniority" />
+		<result column="company_id" property="companyId" />
+		<result column="direct_person_department_id" property="directPersonDepartmentId" />
+		<result column="direct_person_department_name" property="directPersonDepartmentName" />
+	</resultMap>
+	<!-- 李业:查询单条人员信息 -->
+	<select id="selectByEmployee" parameterType="java.lang.String"
+		resultMap="EmployeeResultMap">
+		select e.employee_id,
+		e.employee_name,e.employee_sex,e.login_name,e.employee_phone,
+		e.employee_twophone,p.post_id,p.post_name,d.department_id,d.department_name,e.employee_no,
+		(select employee_name as derect_person_name from employee_ where
+		employee_id = e.direct_person_id and company_id = #{companyId} ),
+		(select department_id as
+		direct_person_department_id from employee_ where
+		employee_id =
+		e.direct_person_id and company_id = #{companyId}),
+		(select department_name as
+		direct_person_department_name from employee_ where
+		employee_id =
+		e.direct_person_id and company_id = #{companyId}),
+		e.entry_time,e.probationary_expired,e.work_address,e.marriage_status,e.seniority,e.company_id
+		from employee_ as e
+		left join department_ d on e.department_id = d.department_id and e.company_id =d.company_id
+		left join connect_emp_post_ as cep on e.employee_id = cep.employee_id and cep.post_grades = '1' and cep.is_delete = '0' and cep.company_id =#{companyId}
+		left join post_ p on cep.post_id = p.post_id and cep.company_id =p.company_id
+		left join u_users u on e.employee_id = u.userid
+		where e.company_id = #{companyId} AND e.employee_id = #{employeeId}
+	</select>
+</mapper>
