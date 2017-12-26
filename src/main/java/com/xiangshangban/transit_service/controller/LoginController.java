@@ -69,7 +69,7 @@ public class LoginController {
 	 * @return
 	 */
 	@RequestMapping("/getQrcode")
-	public Map<String, Object> getQrcode(String type,String companyId, HttpSession session,HttpServletRequest request) {
+	public Map<String, Object> getQrcode(String type, HttpSession session,HttpServletRequest request) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
 			String qrcode = "";

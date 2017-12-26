@@ -36,15 +36,12 @@
 		<include refid="Base_Column_List"/>
 		from user_company
 		where user_id = #{userId} and company_id = #{companyId} and type = #{type}
-<<<<<<< HEAD
-=======
 	</select>
 	
 	<select id="FindAll" resultMap="BaseResultMap">
 		select
 		<include refid="Base_Column_List"/>
 		from user_company
->>>>>>> 9ff6e18e1f027c562311a9b0b2cf7cba6f848508
 	</select>
 	
 	<delete id="deleteByPrimaryKey" parameterType="com.xiangshangban.transit_service.bean.UserCompanyDefault" >
