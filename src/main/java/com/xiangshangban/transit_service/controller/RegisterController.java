@@ -79,7 +79,7 @@ public class RegisterController {
     
     @Transactional
     @RequestMapping(value = "/registerUsers", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
-    public Map<String, Object> registerUsers(String phone,String temporaryPwd,String userName,String companyName,String company_no,String type,HttpServletRequest request) {
+    public Map<String, Object> registerUsers(String phone,String password,String temporaryPwd,String userName,String companyName,String company_no,String type,HttpServletRequest request) {
 
         Map<String, Object> map = new HashMap<String, Object>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -110,6 +110,8 @@ public class RegisterController {
     					// 创建新增实体
                         Uusers uUsers = new Uusers();
                         uUsers.setUserid(userId);
+                        uUsers.setAccount(phone);
+                        uUsers.setUserpwd(password);
                         uUsers.setPhone(phone);
                         uUsers.setTemporarypwd(temporaryPwd);
                         uUsers.setUsername(userName);

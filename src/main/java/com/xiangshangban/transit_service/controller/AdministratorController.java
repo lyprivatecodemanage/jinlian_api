@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,10 +28,10 @@ import com.xiangshangban.transit_service.service.OSSFileService;
 import com.xiangshangban.transit_service.service.UserCompanyService;
 import com.xiangshangban.transit_service.service.UusersRolesService;
 import com.xiangshangban.transit_service.service.UusersService;
-import com.xiangshangban.transit_service.util.HttpClientUtil;
 import com.xiangshangban.transit_service.util.PropertiesUtils;
 import com.xiangshangban.transit_service.util.RedisUtil;
 import com.xiangshangban.transit_service.util.YtxSmsUtil;
+import com.xiangshangban.transit_service.util.RedisUtil.Hash;
 
 @RestController
 @RequestMapping("/administratorController")
@@ -61,12 +60,18 @@ public class AdministratorController {
 	 * @return
 	 */
 	@RequestMapping(value="/administratorInit",produces = "application/json;charset=utf-8",method = RequestMethod.POST)
-	public Map<String,Object> administratorInit(@RequestBody String jsonString){
+	public Map<String,Object> administratorInit(HttpServletRequest request){
 		Map<String,Object> map = new HashMap<>();
 		List<Employee> list = new ArrayList<>();
 
-		JSONObject obj = JSON.parseObject(jsonString);
-		String companyId = obj.getString("companyId");
+		// 初始化redis
+		RedisUtil redis = RedisUtil.getInstance();
+				// 从redis取出短信验证码
+		String phone = redis.new Hash().hget(request.getSession().getId(), "session");
+						
+		Uusers user = uusersService.selectByPhone(phone,"0");
+				
+		String companyId = userCompanyService.selectBySoleUserId(user.getUserid(),"0").getCompanyId();
 		
 		if(StringUtils.isEmpty(companyId)){
 			map.put("returnCode","3006");
@@ -225,9 +230,16 @@ public class AdministratorController {
 		Map<String,Object> map = new HashMap<>();
 		String historyUserIds = "";
 		
+		// 初始化redis
+		RedisUtil redis = RedisUtil.getInstance();
+		// 从redis取出短信验证码
+		String phone = redis.new Hash().hget(request.getSession().getId(), "session");
+		
+		Uusers user = uusersService.selectByPhone(phone,"0");
+		
 		JSONObject obj = JSON.parseObject(jsonString);
 		String newUserId = obj.getString("newUserId");
-		String companyId = obj.getString("companyId");
+		String companyId = userCompanyService.selectBySoleUserId(user.getUserid(),"0").getCompanyId();
 		
 		try {
 			UusersRolesKey uusersRolesKey = uusersRolesService.SelectAdministrator(companyId, new Uroles().admin_role);
