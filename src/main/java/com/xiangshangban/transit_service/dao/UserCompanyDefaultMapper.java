@@ -10,7 +10,7 @@ import com.xiangshangban.transit_service.bean.UserCompanyDefault;
 @Mapper
 public interface UserCompanyDefaultMapper {
 	
-	List<UserCompanyDefault> selectByUserId(String userId);
+	List<UserCompanyDefault> selectByUserId(@Param("userId")String userId,@Param("type")String type);
 
 	int deleteByPrimaryKey(UserCompanyDefault key);
 
@@ -18,9 +18,11 @@ public interface UserCompanyDefaultMapper {
 
 	int insertSelective(UserCompanyDefault record);
 	
-	UserCompanyDefault selectBySoleUserId(String userId);
+	UserCompanyDefault selectBySoleUserId(@Param("userId")String userId,@Param("type")String type);
 	
-	UserCompanyDefault selectByUserIdAndCompanyId(@Param("userId")String userId,@Param("companyId") String companyId);
+	UserCompanyDefault selectByUserIdAndCompanyId(@Param("userId")String userId,@Param("companyId") String companyId,@Param("type")String type);
 	
-	int updateUserCompanyCoption(@Param("userId")String userId,@Param("companyId")String companyId,@Param("option")String option);
+	int updateUserCompanyCoption(@Param("userId")String userId,@Param("companyId")String companyId,@Param("option")String option,@Param("type")String type);
+	
+	List<UserCompanyDefault> FindAll();
 }

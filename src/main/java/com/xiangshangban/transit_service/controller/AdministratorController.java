@@ -157,8 +157,9 @@ public class AdministratorController {
 	 * @return
 	 */
 	@RequestMapping(value="/adminAuthCode",produces = "application/json;charset=utf-8",method = RequestMethod.POST)
-	public Map<String,Object> administratorAuthCode(@RequestBody String jsonString){
+	public Map<String,Object> administratorAuthCode(@RequestBody String jsonString,HttpServletRequest request){
 		Map<String, Object> result = new HashMap<String, Object>();
+		String type = request.getHeader("type");
 		YtxSmsUtil sms = new YtxSmsUtil("LTAIcRopzlp5cbUd", "VnLMEEXQRukZQSP6bXM6hcNWPlphiP");
 		try {
 			JSONObject obj = JSON.parseObject(jsonString);
@@ -166,7 +167,7 @@ public class AdministratorController {
 			
 			String phone = uusersService.selectById(userId).getPhone();
 			
-			Uusers user = uusersService.selectByPhone(phone);
+			Uusers user = uusersService.selectByPhone(phone,type);
 			// 获取验证码
 			String smsCode = "";
 			//测试环境或者测试账号
@@ -275,13 +276,13 @@ public class AdministratorController {
 				List<UserCompanyDefault> list = new ArrayList<>();
 				
 				for (UusersRolesKey urk : urlist) {
-					 list.add(userCompanyService.selectByUserIdAndCompanyId(userId, urk.getCompanyId()));
+					 list.add(userCompanyService.selectByUserIdAndCompanyId(userId, urk.getCompanyId(),"0"));
 				}
 				
-				int num = userCompanyService.updateUserCompanyCoption(userId, companyId, new UserCompanyDefault().status_2);
+				int num = userCompanyService.updateUserCompanyCoption(userId, companyId, new UserCompanyDefault().status_2,"0");
 				
 				if(num>0){
-					userCompanyService.updateUserCompanyCoption(userId, list.get(0).getCompanyId(), new UserCompanyDefault().status_1);
+					userCompanyService.updateUserCompanyCoption(userId, list.get(0).getCompanyId(), new UserCompanyDefault().status_1,"0");
 				}
 			}
 			

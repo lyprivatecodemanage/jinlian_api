@@ -33,24 +33,24 @@ public class UserCompanyServiceImpl implements UserCompanyService {
     }
 
 	@Override
-	public UserCompanyDefault selectBySoleUserId(String userId) {
+	public UserCompanyDefault selectBySoleUserId(String userId,String type) {
 		// TODO Auto-generated method stub
-		return userCompanyDefaultMapper.selectBySoleUserId(userId);
+		return userCompanyDefaultMapper.selectBySoleUserId(userId,type);
 	}
-		public UserCompanyDefault selectByUserIdAndCompanyId(String userId, String companyId) {
+		public UserCompanyDefault selectByUserIdAndCompanyId(String userId, String companyId,String type) {
 		// TODO Auto-generated method stub
-		return userCompanyDefaultMapper.selectByUserIdAndCompanyId(userId, companyId);
+		return userCompanyDefaultMapper.selectByUserIdAndCompanyId(userId, companyId,type);
 	}
 
 		@Override
-		public int updateUserCompanyCoption(String userId, String companyId, String option) {
+		public int updateUserCompanyCoption(String userId, String companyId, String option,String type) {
 			// TODO Auto-generated method stub
-			return userCompanyDefaultMapper.updateUserCompanyCoption(userId, companyId, option);
+			return userCompanyDefaultMapper.updateUserCompanyCoption(userId, companyId, option,type);
 		}
 
 		@Override
-		public List<UserCompanyDefault> selectByUserId(String userId) {
+		public List<UserCompanyDefault> selectByUserId(String userId,String type) {
 			// TODO Auto-generated method stub
-			return userCompanyDefaultMapper.selectByUserId(userId);
+			return userCompanyDefaultMapper.selectByUserId(userId,type);
 		}
 }

@@ -11,7 +11,7 @@ import com.xiangshangban.transit_service.bean.UserCompanyDefault;
  */
 public interface UserCompanyService {
 
-	List<UserCompanyDefault> selectByUserId(String userId);
+	List<UserCompanyDefault> selectByUserId(String userId,String type);
 	
     int deleteByPrimaryKey(UserCompanyDefault key);
 
@@ -19,9 +19,9 @@ public interface UserCompanyService {
 
     int insertSelective(UserCompanyDefault record);
     
-    UserCompanyDefault selectBySoleUserId(String userId);
+    UserCompanyDefault selectBySoleUserId(String userId,String type);
     
-    UserCompanyDefault selectByUserIdAndCompanyId(String userId,String companyId);
+    UserCompanyDefault selectByUserIdAndCompanyId(String userId,String companyId,String type);
     
-    int updateUserCompanyCoption(String userId,String companyId,String option);
+    int updateUserCompanyCoption(String userId,String companyId,String option,String type);
 }

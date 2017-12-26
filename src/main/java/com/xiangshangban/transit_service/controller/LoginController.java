@@ -17,13 +17,17 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
+import org.hsqldb.lib.StringUtil;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.xiangshangban.transit_service.bean.Company;
 import com.xiangshangban.transit_service.bean.Login;
 import com.xiangshangban.transit_service.bean.UniqueLogin;
@@ -293,10 +297,18 @@ public class LoginController {
 	 */
 	@Transactional
 	@RequestMapping(value = "/loginUser", method = RequestMethod.POST)
-	public Map<String, Object> loginUser(String phone, String smsCode, HttpSession session,
+	public Map<String, Object> loginUser(String phone,String smsCode,String password,HttpSession session,
 			HttpServletRequest request) {
 		System.out.println("logingUser:\t"+session.getId());
 		Map<String, Object> result = new HashMap<String, Object>();
+		/*JSONObject obj =JSON.parseObject(jsonString);*/
+		/*String phone = obj.getString("phone");
+		String smsCode = obj.getString("smsCode");
+		String password = obj.getString("password");*/
+		if(StringUtil.isEmpty(smsCode)){
+			smsCode = password;
+		}
+		RedisUtil redis = RedisUtil.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar calendar = Calendar.getInstance();
 		// 获取请求参数
@@ -306,7 +318,7 @@ public class LoginController {
 		String id = "";
 		if (phone != null && !"".equals(phone)) {
 			// 判断手机号是否注册
-			Uusers user = uusersService.selectByPhone(phone);
+			Uusers user = uusersService.selectByPhone(phone,type);
 			Login loginRecord = null;
 			if("0".equals(type)){
 				loginRecord = loginService.selectOneByPhoneFromWeb(phone);
@@ -329,7 +341,6 @@ public class LoginController {
 				id = loginRecord.getId();
 			}
 			// 初始化redis
-			RedisUtil redis = RedisUtil.getInstance();
 			// 从redis取出短信验证码
 			String redisSmsCode = redis.new Hash().hget("smsCode_" + phone, "smsCode");
 			if (StringUtils.isEmpty(redisSmsCode)) {
@@ -373,7 +384,7 @@ public class LoginController {
 							result.put("returnCode", "3003");
 							return result;
 						}
-						Uusers user = uusersService.selectByPhone(phone);
+						Uusers user = uusersService.selectByPhone(phone,type);
 						if (user!=null) {
 							phone = user.getPhone();
 							smsCode = user.getTemporarypwd();
@@ -403,7 +414,7 @@ public class LoginController {
 					//添加本次登录记录
 					uniqueLoginService.insert(new UniqueLogin(FormatUtil.createUuid(),phone,"",token,clientId,"1",now));
 				}
-				Uusers user = uusersService.selectByPhone(phone);
+				Uusers user = uusersService.selectByPhone(phone,type);
 				if(user==null || StringUtils.isEmpty(user.getCompanyId())){
 					result.put("message", "用户身份信息缺失");
 					result.put("returnCode", "3003");
@@ -423,9 +434,9 @@ public class LoginController {
 			// web
 			if (type != null && Integer.valueOf(type) == 0) {
 				//通过手机号码查出用户信息
-				Uusers uuser = uusersService.selectByPhone(phone);
+				Uusers uuser = uusersService.selectByPhone(phone,type);
 				//通过用户的ID查询出 用户 公司关联表信息
-				UserCompanyDefault ucd = userCompanyService.selectBySoleUserId(uuser.getUserid());
+				UserCompanyDefault ucd = userCompanyService.selectBySoleUserId(uuser.getUserid(),type);
 				
 				Uroles uroles = uusersRolesService.SelectRoleByUserId(uuser.getUserid(),ucd.getCompanyId());
 				
@@ -480,6 +491,31 @@ public class LoginController {
 					}*/
 				}
 				
+			}
+			if("1".equals(type)){
+				if(StringUtils.isEmpty(token)){
+					token = FormatUtil.createUuid();
+					redis.getJedis().hset(token, "token", phone);
+					redis.getJedis().expire(token, 1800);
+				}else{
+					String redisPhone = String.valueOf(redis.getJedis().hget(token, "token"));
+					if(StringUtils.isEmpty(redisPhone)){
+						token = FormatUtil.createUuid();
+					}
+					redis.getJedis().hset(token, "token", phone);
+					redis.getJedis().expire(token, 1800);
+				}
+				redis.getJedis().hset("token"+phone, "token", clientId);
+				this.changeLogin(phone, token, clientId, type);
+				result.put("token", token);
+			}
+			if("0".equals(type)){
+				//String sessionId = request.getSession().getId();
+				System.out.println("success\t:"+sessionId);
+				redis.getJedis().hset(sessionId, "session", phone);
+				redis.getJedis().expire(sessionId, 1800);
+				redis.getJedis().hset("session"+phone, "session", sessionId);
+				this.changeLogin(phone, sessionId, clientId, type);
 			}
 			UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(phone, smsCode);
 			Subject subject = SecurityUtils.getSubject();
@@ -642,9 +678,10 @@ public class LoginController {
 	@RequestMapping(value = "/sendSms")
 	public Map<String, Object> sendSms(String phone, HttpServletRequest request, HttpSession session) {
 		Map<String, Object> result = new HashMap<String, Object>();
+		String type = request.getHeader("type");
 		YtxSmsUtil sms = new YtxSmsUtil("LTAIcRopzlp5cbUd", "VnLMEEXQRukZQSP6bXM6hcNWPlphiP");
 		try {
-			Uusers user = uusersService.selectByPhone(phone);
+			Uusers user = uusersService.selectByPhone(phone,type);
 			// 获取验证码
 			String smsCode = "";
 			//测试环境或者测试账号
@@ -702,5 +739,22 @@ public class LoginController {
 		logger.info("url :" + url + "message : 没有权限");
 		return result;
 	}
-
+	private void changeLogin(String phone,String token,String clientId,String type){
+		Login login = loginService.selectOneByPhone(phone);
+		if(login!=null){
+			loginService.deleteById(login.getId());
+		}
+		login = new Login();
+		if("0".equals(type)){
+			login.setSessionId(token);
+		}else{
+			login.setToken(token);
+		}
+			login.setId(FormatUtil.createUuid());
+			login.setPhone(phone);
+			login.setClientId(clientId);
+			login.setStatus(type);
+			loginService.insertSelective(login);
+		
+	}
 }

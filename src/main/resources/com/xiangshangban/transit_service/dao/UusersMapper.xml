@@ -149,7 +149,7 @@
 		select
 		<include refid="Base_Column_List" /> ,company_id
 		from u_users u 
-		left join user_company uc on u.userid = uc.user_id and uc.current_option = '1'
+		left join user_company uc on u.userid = uc.user_id and uc.current_option = '1' and uc.type = #{type}
 		where u.status = '1' and u.phone = #{phone}
 	</select>
 	<select id="selectUserByPhone" parameterType="java.lang.String" resultMap="BaseResultMap">
@@ -414,4 +414,8 @@
 		where employee_id = #{userId}
 		and company_id = #{companyId}
 	</select>
+		<!-- 修改密码 -->
+	<update id="updatePaawordByPhone" parameterType="com.xiangshangban.transit_service.bean.Uusers">
+		update u_users set userpwd = #{userpwd} where phone = #{phone}
+	</update>
 </mapper>

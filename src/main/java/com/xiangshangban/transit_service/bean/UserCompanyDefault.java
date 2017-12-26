@@ -11,16 +11,18 @@ public class UserCompanyDefault {
 	private String currentOption;
 	private String isActive;
 	private String infoStatus;
+	private String type;
 	
 	public UserCompanyDefault(){}
 	
 	public UserCompanyDefault(String userId, String companyId, String currentOption, String isActive,
-			String infoStatus) {
+			String infoStatus,String type) {
 		this.userId = userId;
 		this.companyId = companyId;
 		this.currentOption = currentOption;
 		this.isActive = isActive;
 		this.infoStatus = infoStatus;
+		this.type = type;
 	}
 	
 	public UserCompanyDefault(String userId, String companyId) {
@@ -62,6 +64,14 @@ public class UserCompanyDefault {
 
 	public void setInfoStatus(String infoStatus) {
 		this.infoStatus = infoStatus;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 	

@@ -362,7 +362,7 @@ public class RegisterController {
                     Company company = companyService.selectByCompanyName(company_no);
                     //根据EmployeeID 与 companyID查询 usercompany表  看是否存在记录 
                     //存在记录则已加入公司直接返回  不存在则继续操作
-                    UserCompanyDefault ucd = userCompanyService.selectByUserIdAndCompanyId(employeeId, company.getCompany_id());
+                    UserCompanyDefault ucd = userCompanyService.selectByUserIdAndCompanyId(employeeId, company.getCompany_id(),type);
                 	
                     if(ucd==null){
                     	CheckPendingJoinCompany cpjc = checkPendingJoinCompanyService.selectRecord(userId, company.getCompany_id(),"0");
