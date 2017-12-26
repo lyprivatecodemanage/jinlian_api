@@ -27,6 +27,7 @@ import com.xiangshangban.transit_service.bean.Uusers;
 import com.xiangshangban.transit_service.service.LoginService;
 import com.xiangshangban.transit_service.service.UusersService;
 import com.xiangshangban.transit_service.util.HttpClientUtil;
+import com.xiangshangban.transit_service.util.RedisUtil;
 import com.xiangshangban.transit_service.util.RequestJSONUtil;
 
 /**
@@ -49,17 +50,23 @@ public class RedirectController {
 	 */
 	@RequestMapping(value="/sendRequest", produces = "application/json;charset=UTF-8", method=RequestMethod.POST)
     public String sendRequest(HttpServletRequest request) {
+		RedisUtil redis = RedisUtil.getInstance();
 		
 		//根据token获得当前用户id,公司id
 		String token = request.getHeader("token");
+		String type = request.getHeader("type");
+		String phone="";
 		Uusers user = new Uusers();
 		if (StringUtils.isEmpty(token)) {
 			String sessionId = request.getSession().getId();
 			System.out.println("redirectController : "+sessionId);
-			user = userService.selectCompanyBySessionId(sessionId);
+			phone = redis.getJedis().hget(sessionId, "session");
+			//user = userService.selectCompanyBySessionId(sessionId);
 		} else {
-			user = userService.selectCompanyByToken(token);
+			phone = redis.getJedis().hget(token, "token");
+			//user = userService.selectCompanyByToken(token);
 		}
+		user = userService.selectByPhone(phone,type);
 
 		if (user == null || StringUtils.isEmpty(user.getCompanyId()) || StringUtils.isEmpty(user.getUserid())) {
 			ReturnData returnData = new ReturnData();
@@ -75,6 +82,7 @@ public class RedirectController {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("companyId", user.getCompanyId());
 		headers.put("accessUserId", user.getUserid());
+		headers.put("type", type);
 		// 请求参数
 		Map<String, String[]> paramMap = (Map<String, String[]>) request.getParameterMap();
 		JSONObject newParamMap = new JSONObject();
@@ -117,6 +125,7 @@ public class RedirectController {
 		
 		//根据token获得当前用户id,公司id
 		String token = request.getHeader("token");
+		String type = request.getHeader("type");
 		Uusers user = new Uusers();
 		if(StringUtils.isEmpty(token)){
 			String sessionId = request.getSession().getId();
@@ -138,7 +147,9 @@ public class RedirectController {
 		//头信息
 		Map<String,String> headers = new HashMap<String,String>();
 		headers.put("companyId", user.getCompanyId());
-		headers.put("accessUserId", user.getUserid());
+		headers.put("accessUserId", user.getUserid()); 
+		headers.put("type", type); 
+		
 		//请求参数
 		Map<String,String[]> paramMap =  (Map<String,String[]>)request.getParameterMap();
 		JSONObject newParamMap = new JSONObject();

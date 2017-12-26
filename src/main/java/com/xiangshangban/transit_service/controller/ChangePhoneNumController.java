@@ -9,6 +9,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,15 +42,16 @@ public class ChangePhoneNumController {
 	 * @return
 	 */
 	@RequestMapping("/verifyOriginalPhone")
-	public Map<String,Object> verifyOriginalPhone(String phone,String userName){
+	public Map<String,Object> verifyOriginalPhone(String phone,String userName,HttpServletRequest request){
 		Map<String, Object> result = new HashMap<String, Object>();
+		String type = request.getHeader("type");
 		if(phone==null || "".equals(phone) || userName==null || "".equals(userName)){
 			result.put("returnCode", "3007");
 			result.put("message", "参数格式不正确");
 			return result;
 		}
 		try{
-			Uusers user = uusersService.selectByPhone(phone);
+			Uusers user = uusersService.selectByPhone(phone,type);
 			if(user==null){
 				result.put("message", "手机号不存在");
 				result.put("returnCode", "4004");
@@ -149,8 +153,9 @@ public class ChangePhoneNumController {
 	 * @return
 	 */
 	@RequestMapping("/isProtect")
-	public Map<String, Object> isProtect(String phone, String smsCode) {
+	public Map<String, Object> isProtect(String phone, String smsCode,HttpServletRequest request) {
 		Map<String, Object> result = new HashMap<String, Object>();
+		String type = request.getHeader("type");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		try {
 			RedisUtil redis = RedisUtil.getInstance();
@@ -165,7 +170,7 @@ public class ChangePhoneNumController {
 				result.put("returnCode", "4002");
 				return result;
 			}
-			Uusers user = uusersService.selectByPhone(phone);
+			Uusers user = uusersService.selectByPhone(phone,type);
 			// 系统中是否有新手机号
 			// 否
 			if (user == null) {
@@ -341,13 +346,13 @@ public class ChangePhoneNumController {
 	 * @return
 	 */
 	@RequestMapping("/submitInformation")
-	public Map<String, Object> submitInformation(ChangePhone changePhone) {
+	public Map<String, Object> submitInformation(ChangePhone changePhone,HttpServletRequest request) {
 		Map<String, Object> result = new HashMap<String, Object>();
-
+		String type = request.getHeader("type");
 		try {
 
 			String oldPhone = changePhone.getOldPhone();
-			Uusers user = uusersService.selectByPhone(oldPhone);
+			Uusers user = uusersService.selectByPhone(oldPhone,type);
 			changePhone.setUserId(user.getUserid());
 			changePhone.setId(FormatUtil.createUuid());
 			changePhone.setVerificationStatus("0");

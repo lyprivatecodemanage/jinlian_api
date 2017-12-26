@@ -17,7 +17,7 @@ public interface UusersMapper {
 
     Uusers selectByPrimaryKey(String userId);
     
-    Uusers selectByPhone(@Param("phone")String phone);
+    Uusers selectByPhone(@Param("phone")String phone,@Param("type")String type);
     
     List<Uroles> selectRoles(String phone);
     
@@ -70,4 +70,10 @@ public interface UusersMapper {
 	
 	//根据用户ID查询人员信息
 	Employee SelectByUserId(String userId);
+	/**
+	 * 根据手机号修改密码
+	 * @param user
+	 * @return
+	 */
+	int updatePaawordByPhone(Uusers user);
 }

@@ -67,7 +67,7 @@ public class MyRealm extends AuthorizingRealm {
 		// 第二部:根据用户输入的userCode从数据库查询
 		// ....
 		// 根据从数据库查询到密码
-		Uusers user = usersService.selectByPhone(userCode);
+		Uusers user = usersService.selectUserByPhone(userCode);
 		if (user == null) {
 			return null;
 		}
