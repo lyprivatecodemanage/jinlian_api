@@ -126,7 +126,7 @@ public class RedirectController {
 		RedisUtil redis = RedisUtil.getInstance();
 		//根据token获得当前用户id,公司id
 		String token = request.getHeader("token");
-		String type = request.getHeader("type");
+		//String type = request.getHeader("type");
 		Uusers user = new Uusers();
 		String  phone = "";
 		if(StringUtils.isEmpty(token)){
@@ -139,7 +139,7 @@ public class RedirectController {
 			redis.expire(token,1800);
 			//user = userService.selectCompanyByToken(token);
 		}
-		user = userService.selectByPhone(phone,type);
+		user = userService.selectByPhone(phone,"0");
 		if(user==null || StringUtils.isEmpty(user.getCompanyId()) || StringUtils.isEmpty(user.getUserid())){
 			ReturnData returnData = new ReturnData();
 			returnData.setReturnCode("3003");
@@ -154,7 +154,7 @@ public class RedirectController {
 		Map<String,String> headers = new HashMap<String,String>();
 		headers.put("companyId", user.getCompanyId());
 		headers.put("accessUserId", user.getUserid()); 
-		headers.put("type", type); 
+		headers.put("type","0"); 
 		
 		//请求参数
 		Map<String,String[]> paramMap =  (Map<String,String[]>)request.getParameterMap();

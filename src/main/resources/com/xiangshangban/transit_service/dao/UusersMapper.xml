@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.xiangshangban.transit_service.dao.UusersMapper">
 	<resultMap id="BaseResultMap" type="com.xiangshangban.transit_service.bean.Uusers">
-		<id column="userid" property="userid" />
+		<result column="userid" property="userid" />
 		<result column="account" property="account" />
 		<result column="userpwd" property="userpwd" />
 		<result column="temporarypwd" property="temporarypwd" />
