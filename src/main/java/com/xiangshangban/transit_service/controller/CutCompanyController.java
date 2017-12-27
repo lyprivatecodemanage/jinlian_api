@@ -523,13 +523,18 @@ public class CutCompanyController {
 					companyId=userCompanyDefault.getCompanyId();
 				}
 			}
-			
+			//原来的公司
 			int num = userCompanyService.updateUserCompanyCoption(userId, companyId, new UserCompanyDefault().status_2,"1");
 			
 			if(num>0){
+				//切换后的公司
 				int flag = userCompanyService.updateUserCompanyCoption(userId, cutCompanyId, new UserCompanyDefault().status_1,"1");
 				
 				if(flag>0){
+					Uroles role = uusersRolesService.SelectRoleByUserId(userId, companyId);
+					map.put("userId",userId);
+					map.put("companyId",cutCompanyId);
+					map.put("roles",role.getRolename());
 					map.put("returnCode", "3000");
 					map.put("message", "数据请求成功");
 					return map;
