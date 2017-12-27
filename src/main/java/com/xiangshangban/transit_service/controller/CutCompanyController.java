@@ -534,7 +534,7 @@ public class CutCompanyController {
 					Uroles role = uusersRolesService.SelectRoleByUserId(userId, companyId);
 					map.put("userId",userId);
 					map.put("companyId",cutCompanyId);
-					map.put("role",role.getRolename());
+					map.put("roles",role.getRolename());
 					map.put("returnCode", "3000");
 					map.put("message", "数据请求成功");
 					return map;
