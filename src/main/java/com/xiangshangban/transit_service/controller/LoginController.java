@@ -46,6 +46,9 @@ import com.xiangshangban.transit_service.util.FormatUtil;
 import com.xiangshangban.transit_service.util.PropertiesUtils;
 import com.xiangshangban.transit_service.util.RedisUtil;
 import com.xiangshangban.transit_service.util.YtxSmsUtil;
+
+import redis.clients.jedis.Jedis;
+
 import com.xiangshangban.transit_service.util.RedisUtil.Hash;
 @RestController
 @RequestMapping("/loginController")
@@ -323,6 +326,7 @@ public class LoginController {
 			loginType = "1";
 		}
 		RedisUtil redis = RedisUtil.getInstance();
+		Jedis jedis = redis.getJedis();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar calendar = Calendar.getInstance();
 		// 获取请求参数
@@ -511,28 +515,40 @@ public class LoginController {
 			if("1".equals(type)){
 				if(StringUtils.isEmpty(token)){
 					token = FormatUtil.createUuid();
-					redis.getJedis().hset(token, "token", phone);
-					redis.getJedis().expire(token, 1800);
+					/*redis.getJedis().hset(token, "token", phone);
+					redis.getJedis().expire(token, 1800);*/
+					jedis.hset(token, "token", phone);
+					jedis.expire(token, 1800);
 				}else{
 					String redisPhone = String.valueOf(redis.getJedis().hget(token, "token"));
 					if(StringUtils.isEmpty(redisPhone)){
 						token = FormatUtil.createUuid();
 					}
-					redis.getJedis().hset(token, "token", phone);
-					redis.getJedis().expire(token, 1800);
+					/*redis.getJedis().hset(token, "token", phone);
+					redis.getJedis().expire(token, 1800);*/
+					jedis.hset(token, "token", phone);
+					jedis.expire(token, 1800);
 				}
-				redis.getJedis().hset("token"+phone, "token", clientId);
-				redis.getJedis().expire("token"+phone, 1800);
+				/*redis.getJedis().hset("token"+phone, "token", clientId);
+				redis.getJedis().expire("token"+phone, 1800);*/
+				jedis.hset("token"+phone, "token", clientId);
+				jedis.expire("token"+phone, 1800);
+				jedis.close();
 				this.changeLogin(phone, token, clientId, type);
 				result.put("token", token);
 			}
 			if("0".equals(type)){
 				//String sessionId = request.getSession().getId();
 				System.out.println("success\t:"+sessionId);
-				redis.getJedis().hset(sessionId, "session", phone);
+				/*redis.getJedis().hset(sessionId, "session", phone);
 				redis.getJedis().expire(sessionId, 1800);
 				redis.getJedis().hset("session"+phone, "session", sessionId);
-				redis.getJedis().expire("session"+phone, 1800);
+				redis.getJedis().expire("session"+phone, 1800);*/
+				jedis.hset(sessionId, "session", phone);
+				jedis.expire(sessionId, 1800);
+				jedis.hset("session"+phone, "session", sessionId);
+				jedis.expire("session"+phone, 1800);
+				jedis.close();
 				this.changeLogin(phone, sessionId, clientId, type);
 			}
 			phone = phone+"_"+loginType;
