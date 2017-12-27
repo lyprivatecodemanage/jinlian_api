@@ -51,7 +51,6 @@ public class RedirectController {
 	@RequestMapping(value="/sendRequest", produces = "application/json;charset=UTF-8", method=RequestMethod.POST)
     public String sendRequest(HttpServletRequest request) {
 		RedisUtil redis = RedisUtil.getInstance();
-		
 		//根据token获得当前用户id,公司id
 		String token = request.getHeader("token");
 		String type = request.getHeader("type");
@@ -60,10 +59,10 @@ public class RedirectController {
 		if (StringUtils.isEmpty(token)) {
 			String sessionId = request.getSession().getId();
 			System.out.println("redirectController : "+sessionId);
-			phone = redis.getJedis().hget(sessionId, "session");
+			phone = redis.new Hash().hget(sessionId, "session");
 			//user = userService.selectCompanyBySessionId(sessionId);
 		} else {
-			phone = redis.getJedis().hget(token, "token");
+			phone = redis.new Hash().hget(token, "token");
 			//user = userService.selectCompanyByToken(token);
 		}
 		user = userService.selectByPhone(phone,type);
@@ -122,18 +121,22 @@ public class RedirectController {
 	
 	@RequestMapping(value="/exportRequest", produces = "application/json;charset=UTF-8")
     public String export(HttpServletRequest request, HttpServletResponse response) {
-		
+		RedisUtil redis = RedisUtil.getInstance();
 		//根据token获得当前用户id,公司id
 		String token = request.getHeader("token");
 		String type = request.getHeader("type");
 		Uusers user = new Uusers();
+		String  phone = "";
 		if(StringUtils.isEmpty(token)){
 			String sessionId = request.getSession().getId();
-			user = userService.selectCompanyBySessionId(sessionId);
-		}else{
-			user = userService.selectCompanyByToken(token);
+	
+			phone = redis.new Hash().hget(sessionId, "session");
+			//user = userService.selectCompanyBySessionId(sessionId);
+		} else {
+			phone = redis.new Hash().hget(token, "token");
+			//user = userService.selectCompanyByToken(token);
 		}
-		
+		user = userService.selectByPhone(phone,type);
 		if(user==null || StringUtils.isEmpty(user.getCompanyId()) || StringUtils.isEmpty(user.getUserid())){
 			ReturnData returnData = new ReturnData();
 			returnData.setReturnCode("3003");
