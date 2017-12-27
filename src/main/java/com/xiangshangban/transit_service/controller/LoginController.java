@@ -626,9 +626,11 @@ public class LoginController {
 			String phone = "";
 			String type = request.getHeader("type");
 			if("0".equals(type)){
-				Object obj = request.getSession().getAttribute("phone");
-				if(obj!=null){
-					phone = obj.toString();
+				// 初始化redis
+				RedisUtil redis = RedisUtil.getInstance();
+				// 从redis取出短信验证码
+				phone = redis.new Hash().hget(request.getSession().getId(), "session");
+				if(StringUtils.isNotEmpty(phone)){
 					uniqueLoginService.deleteByPhoneFromWeb(phone);
 					request.getSession().invalidate();
 				}
