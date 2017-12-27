@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.catalina.security.SecurityUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -475,6 +476,46 @@ public class LoginController {
 				}
 				uniqueLoginService.insert(new UniqueLogin(FormatUtil.createUuid(),phone,sessionId,"","","0",now));
 				Uusers user = uusersService.selectCompanyBySessionId(sessionId);
+				if("1".equals(type)){
+					if(StringUtils.isEmpty(token)){
+						token = FormatUtil.createUuid();
+						/*redis.getJedis().hset(token, "token", phone);
+						redis.getJedis().expire(token, 1800);*/
+						jedis.hset(token, "token", phone);
+						jedis.expire(token, 1800);
+					}else{
+						String redisPhone = String.valueOf(redis.getJedis().hget(token, "token"));
+						if(StringUtils.isEmpty(redisPhone)){
+							token = FormatUtil.createUuid();
+						}
+						/*redis.getJedis().hset(token, "token", phone);
+						redis.getJedis().expire(token, 1800);*/
+						jedis.hset(token, "token", phone);
+						jedis.expire(token, 1800);
+					}
+					/*redis.getJedis().hset("token"+phone, "token", clientId);
+					redis.getJedis().expire("token"+phone, 1800);*/
+					jedis.hset("token"+phone, "token", clientId);
+					jedis.expire("token"+phone, 1800);
+					jedis.close();
+					this.changeLogin(phone, token, clientId, type);
+					result.put("token", token);
+				}
+				if("0".equals(type)){
+					//String sessionId = request.getSession().getId();
+					System.out.println("success\t:"+sessionId);
+					/*redis.getJedis().hset(sessionId, "session", phone);
+					redis.getJedis().expire(sessionId, 1800);
+					redis.getJedis().hset("session"+phone, "session", sessionId);
+					redis.getJedis().expire("session"+phone, 1800);*/
+					jedis.hset(sessionId, "session", phone);
+					jedis.expire(sessionId, 1800);
+					jedis.hset("session"+phone, "session", sessionId);
+					jedis.expire("session"+phone, 1800);
+					jedis.close();
+					this.changeLogin(phone, sessionId, clientId, type);
+				}
+				
 				if(user==null || StringUtils.isEmpty(user.getCompanyId())){
 					result.put("message", "用户身份信息缺失");
 					result.put("returnCode", "3003");
@@ -496,60 +537,11 @@ public class LoginController {
 				if(type != null && Integer.valueOf(type) == 0) {
 					loginService.updateStatusById(id,"web");
 					loginService.deleteByPrimatyKey(id,"web");
-					/*if (i <= 0) {
-						result.put("message", "session替换失败");
-						result.put("returnCode", "4023");
-						return result;
-					}*/
 				}else if(type != null && Integer.valueOf(type) == 1){
 					loginService.updateStatusById(id,"");
 					loginService.deleteByPrimatyKey(id,"");
-					/*if (i <= 0) {
-						result.put("message", "token替换失败");
-						result.put("returnCode", "4023");
-						return result;
-					}*/
 				}
 				
-			}
-			if("1".equals(type)){
-				if(StringUtils.isEmpty(token)){
-					token = FormatUtil.createUuid();
-					/*redis.getJedis().hset(token, "token", phone);
-					redis.getJedis().expire(token, 1800);*/
-					jedis.hset(token, "token", phone);
-					jedis.expire(token, 1800);
-				}else{
-					String redisPhone = String.valueOf(redis.getJedis().hget(token, "token"));
-					if(StringUtils.isEmpty(redisPhone)){
-						token = FormatUtil.createUuid();
-					}
-					/*redis.getJedis().hset(token, "token", phone);
-					redis.getJedis().expire(token, 1800);*/
-					jedis.hset(token, "token", phone);
-					jedis.expire(token, 1800);
-				}
-				/*redis.getJedis().hset("token"+phone, "token", clientId);
-				redis.getJedis().expire("token"+phone, 1800);*/
-				jedis.hset("token"+phone, "token", clientId);
-				jedis.expire("token"+phone, 1800);
-				jedis.close();
-				this.changeLogin(phone, token, clientId, type);
-				result.put("token", token);
-			}
-			if("0".equals(type)){
-				//String sessionId = request.getSession().getId();
-				System.out.println("success\t:"+sessionId);
-				/*redis.getJedis().hset(sessionId, "session", phone);
-				redis.getJedis().expire(sessionId, 1800);
-				redis.getJedis().hset("session"+phone, "session", sessionId);
-				redis.getJedis().expire("session"+phone, 1800);*/
-				jedis.hset(sessionId, "session", phone);
-				jedis.expire(sessionId, 1800);
-				jedis.hset("session"+phone, "session", sessionId);
-				jedis.expire("session"+phone, 1800);
-				jedis.close();
-				this.changeLogin(phone, sessionId, clientId, type);
 			}
 			phone = phone+"_"+loginType;
 			UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(phone, smsCode);
@@ -619,7 +611,7 @@ public class LoginController {
 	 * @return
 	 */
 	//@RequiresRoles(value = { "admin", "superAdmin" }, logical = Logical.OR)
-	@RequestMapping(value = "/logOuterr",produces="application/json;charset=utf-8",method=RequestMethod.POST)
+	@RequestMapping(value = "/logOuterr",method=RequestMethod.POST)
 	public Map<String, Object> logOut(HttpServletRequest request) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		try {
@@ -636,6 +628,10 @@ public class LoginController {
 				String token = request.getHeader("token");
 				String clientId = request.getHeader("clientId");
 				uniqueLoginService.deleteByTokenAndClientId(token, clientId);
+			}
+			Subject subject = SecurityUtils.getSubject();
+			if(subject.isAuthenticated()){
+				subject.logout();
 			}
 			result.put("message", "退出成功");
 			result.put("returnCode", "3000");
