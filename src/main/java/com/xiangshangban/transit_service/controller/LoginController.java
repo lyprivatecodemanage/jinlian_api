@@ -624,7 +624,7 @@ public class LoginController {
 				phone = redis.new Hash().hget(request.getSession().getId(), "session");
 				if(StringUtils.isNotEmpty(phone)){
 					uniqueLoginService.deleteByPhoneFromWeb(phone);
-					request.getSession().invalidate();
+					//request.getSession().invalidate();
 				}
 			}else{
 				String token = request.getHeader("token");
