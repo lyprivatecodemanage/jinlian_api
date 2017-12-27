@@ -165,14 +165,17 @@ public class AdministratorController {
 	public Map<String,Object> administratorAuthCode(@RequestBody String jsonString,HttpServletRequest request){
 		Map<String, Object> result = new HashMap<String, Object>();
 		String type = request.getHeader("type");
+		// 初始化redis
+		RedisUtil redis = RedisUtil.getInstance();
+		
 		YtxSmsUtil sms = new YtxSmsUtil("LTAIcRopzlp5cbUd", "VnLMEEXQRukZQSP6bXM6hcNWPlphiP");
 		try {
 			JSONObject obj = JSON.parseObject(jsonString);
 			String userId = obj.getString("userId");
-			
-			String phone = uusersService.selectById(userId).getPhone();
-			
-			Uusers user = uusersService.selectByPhone(phone,type);
+			// 从redis取出短信验证码
+			String phone = redis.new Hash().hget(request.getSession().getId(), "session");
+							
+			Uusers user = uusersService.selectByPhone(phone,"0");
 			// 获取验证码
 			String smsCode = "";
 			//测试环境或者测试账号
@@ -186,7 +189,6 @@ public class AdministratorController {
 				// 更新数据库验证码记录,当做登录凭证
 				uusersService.updateSmsCode(phone, smsCode);
 			}
-			RedisUtil redis = RedisUtil.getInstance();
 			// 设值
 			redis.new Hash().hset("smsCode_" + phone, "smsCode", smsCode);
 			// 设置redis保存时间
