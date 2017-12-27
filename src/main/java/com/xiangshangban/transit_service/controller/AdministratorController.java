@@ -31,7 +31,6 @@ import com.xiangshangban.transit_service.service.UusersService;
 import com.xiangshangban.transit_service.util.PropertiesUtils;
 import com.xiangshangban.transit_service.util.RedisUtil;
 import com.xiangshangban.transit_service.util.YtxSmsUtil;
-import com.xiangshangban.transit_service.util.RedisUtil.Hash;
 
 @RestController
 @RequestMapping("/administratorController")
