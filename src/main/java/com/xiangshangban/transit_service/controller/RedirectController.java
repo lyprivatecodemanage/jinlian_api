@@ -60,9 +60,11 @@ public class RedirectController {
 			String sessionId = request.getSession().getId();
 			System.out.println("redirectController : "+sessionId);
 			phone = redis.new Hash().hget(sessionId, "session");
+			redis.expire(sessionId,1800);
 			//user = userService.selectCompanyBySessionId(sessionId);
 		} else {
 			phone = redis.new Hash().hget(token, "token");
+			redis.expire(token,1800);
 			//user = userService.selectCompanyByToken(token);
 		}
 		user = userService.selectByPhone(phone,type);
@@ -129,11 +131,12 @@ public class RedirectController {
 		String  phone = "";
 		if(StringUtils.isEmpty(token)){
 			String sessionId = request.getSession().getId();
-	
 			phone = redis.new Hash().hget(sessionId, "session");
+			redis.expire(sessionId,1800);
 			//user = userService.selectCompanyBySessionId(sessionId);
 		} else {
 			phone = redis.new Hash().hget(token, "token");
+			redis.expire(token,1800);
 			//user = userService.selectCompanyByToken(token);
 		}
 		user = userService.selectByPhone(phone,type);

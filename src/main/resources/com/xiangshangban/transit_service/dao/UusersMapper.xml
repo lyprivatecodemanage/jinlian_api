@@ -147,7 +147,7 @@
 	</select>
 	<select id="selectByPhone" parameterType="java.lang.String" resultMap="BaseResultMap">
 		select
-		<include refid="Base_Column_List" /> ,company_id
+		<include refid="Base_Column_List" /> ,uc.company_id
 		from u_users u 
 		left join user_company uc on u.userid = uc.user_id and uc.current_option = '1' and uc.type = #{type}
 		where u.status = '1' and u.phone = #{phone}

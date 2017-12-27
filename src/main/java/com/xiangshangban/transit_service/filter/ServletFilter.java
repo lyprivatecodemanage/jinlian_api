@@ -93,6 +93,7 @@ public class ServletFilter implements Filter {
 		System.out.println(req.getMethod());
 		if (!"OPTIONS".equals(req.getMethod())) {
 			System.out.println(req.getSession().getId());
+			System.out.println("========>"+uri);
 			String[] unValidateRepetitiveLogin = HttpClientUtil.getUnValidateRepetitiveLogin();
 			for (String unUri : unValidateRepetitiveLogin) {
 				if (uri.contains(unUri)) {

@@ -87,10 +87,12 @@ public class ApiApplication {
 		bean.setFilters(map);
 		// 配置访问权限
 		LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
+		filterChainDefinitionMap.put("/isSavePasswordController/validateSmsCode", "anon");
+		filterChainDefinitionMap.put("/isSavePasswordController/setPassword", "anon");
 		filterChainDefinitionMap.put("/loginController/sendSms", "anon");
 		filterChainDefinitionMap.put("/loginController/offsiteLogin", "anon");
 		filterChainDefinitionMap.put("/registerController/*", "anon");
-		filterChainDefinitionMap.put("/loginController/logOut", "logout");
+		filterChainDefinitionMap.put("/loginController/logOut", "anon");
 		// filterChainDefinitionMap.put("/CompanyController/selectByCompany",
 		// "perms[admin:companyController:selectByCompany]");
 		// filterChainDefinitionMap.put("/*", "authc");//表示需要认证才可以访问

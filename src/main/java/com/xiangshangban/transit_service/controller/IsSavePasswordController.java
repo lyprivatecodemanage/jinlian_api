@@ -65,7 +65,7 @@ public class IsSavePasswordController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value="/validateSmsCode",produces="application/json;charset=utf-8",method=RequestMethod.POST)
+	@RequestMapping(value="/validateSmsCode",produces="application/json;charset=UTF-8",method=RequestMethod.POST)
 	public Map<String,Object> validateSmsCode(@RequestBody String jsonString,HttpServletRequest request){
 		Map<String,Object> result =new HashMap<String,Object>();
 		JSONObject obj = JSON.parseObject(jsonString);
