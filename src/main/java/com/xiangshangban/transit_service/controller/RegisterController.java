@@ -191,10 +191,10 @@ public class RegisterController {
             }
 
             try {
-            	if(companyName.indexOf("(")>0){
+            	if(companyName.indexOf("(")>-1){
             		companyName = companyName.replaceAll("[\\(\\)]", "");
             	}
-            	if(companyName.indexOf("（")>0){
+            	if(companyName.indexOf("（")>-1){
             		companyName = companyName.replaceAll("[\\（\\）]", "");
             	}
             	// 生成公司创建时间
