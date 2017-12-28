@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.xiangshangban.transit_service.dao.UusersMapper">
 	<resultMap id="BaseResultMap" type="com.xiangshangban.transit_service.bean.Uusers">
-		<id column="userid" property="userid" />
+		<result column="userid" property="userid" />
 		<result column="account" property="account" />
 		<result column="userpwd" property="userpwd" />
 		<result column="temporarypwd" property="temporarypwd" />
@@ -105,9 +105,9 @@
 		u.userid,uc.company_id
 		from
 		u_users u,login_
-		l,user_company uc
+		l,user_company uc 
 		where l.token = #{token} and l.phone = u.phone and
-		uc.user_id = u.userid
+		uc.user_id = u.userid and uc.type = '1'
 		and uc.current_option = '1' AND l.status='1' 
 	</select>
 	<select id="selectCompanyBySessionId" parameterType="java.lang.String"
