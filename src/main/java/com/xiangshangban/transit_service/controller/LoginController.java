@@ -507,11 +507,11 @@ public class LoginController {
 					redis.expire(token, 1800);
 				}*/
 				redis.new Hash().hset(token, "token", phone);
-				redis.expire(token, 1800);
+				//redis.expire(token, 1800);
 				/*redis.getJedis().hset("token"+phone, "token", clientId);
 				redis.getJedis().expire("token"+phone, 1800);*/
 				redis.new Hash().hset("token"+phone, "token", clientId);
-				redis.expire("token"+phone, 1800);
+				//redis.expire("token"+phone, 1800);
 				this.changeLogin(phone, token, clientId, type);
 				result.put("token", token);
 			}

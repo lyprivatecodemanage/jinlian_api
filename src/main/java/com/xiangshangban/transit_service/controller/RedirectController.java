@@ -64,7 +64,7 @@ public class RedirectController {
 			//user = userService.selectCompanyBySessionId(sessionId);
 		} else {
 			phone = redis.new Hash().hget(token, "token");
-			redis.expire(token,1800);
+			//redis.expire(token,1800);
 			//user = userService.selectCompanyByToken(token);
 		}
 		user = userService.selectByPhone(phone,type);
@@ -136,7 +136,7 @@ public class RedirectController {
 			//user = userService.selectCompanyBySessionId(sessionId);
 		} else {
 			phone = redis.new Hash().hget(token, "token");
-			redis.expire(token,1800);
+			//redis.expire(token,1800);
 			//user = userService.selectCompanyByToken(token);
 		}
 		user = userService.selectByPhone(phone,"0");
