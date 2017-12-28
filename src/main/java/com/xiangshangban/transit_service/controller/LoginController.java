@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.catalina.security.SecurityUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -422,15 +421,17 @@ public class LoginController {
 					}
 				}else {
 					// 首次登录,或退出账号时
+					UniqueLogin uniqueLogin = uniqueLoginService.selectByPhoneFromApp(phone);
+					if(uniqueLogin!=null){
+						redis.new Hash().hdel(uniqueLogin.getToken());
+						//删除app上次登录记录
+						uniqueLoginService.deleteByPhoneFromApp(phone);
+					}
+					
 					token = FileMD5Util.getMD5String(phone + now + salt);
 					newLogin = new Login(FormatUtil.createUuid(), phone, token, salt, now, effectiveTime, sessionId,
 							null, null, "1", clientId);
 					loginService.insertSelective(newLogin);
-					UniqueLogin uniqueLogin = uniqueLoginService.selectByPhoneFromApp(phone);
-					if(uniqueLogin!=null){
-						//删除app上次登录记录
-						uniqueLoginService.deleteByPhoneFromApp(phone);
-					}
 					//添加本次登录记录
 					uniqueLoginService.insert(new UniqueLogin(FormatUtil.createUuid(),phone,"",token,clientId,"1",now));
 				}
@@ -466,13 +467,16 @@ public class LoginController {
 					return result;
 				}
 				
+				UniqueLogin uniqueLogin = uniqueLoginService.selectByPhoneFromWeb(phone);
+				if(uniqueLogin!=null){
+					redis.new Hash().hdel(uniqueLogin.getSessionId());
+					uniqueLoginService.deleteByPhoneFromWeb(phone);
+				}
+				
 				newLogin = new Login(FormatUtil.createUuid(), phone, null, null, now, effectiveTime, sessionId, null,
 						null, "1", "web");
 				loginService.insertSelective(newLogin);
-				UniqueLogin uniqueLogin = uniqueLoginService.selectByPhoneFromWeb(phone);
-				if(uniqueLogin!=null){
-					uniqueLoginService.deleteByPhoneFromWeb(phone);
-				}
+				
 				uniqueLoginService.insert(new UniqueLogin(FormatUtil.createUuid(),phone,sessionId,"","","0",now));
 				Uusers user = uusersService.selectCompanyBySessionId(sessionId);
 				
@@ -507,11 +511,11 @@ public class LoginController {
 					redis.expire(token, 1800);
 				}*/
 				redis.new Hash().hset(token, "token", phone);
-				redis.expire(token, 1800);
+				//redis.expire(token, 1800);
 				/*redis.getJedis().hset("token"+phone, "token", clientId);
 				redis.getJedis().expire("token"+phone, 1800);*/
 				redis.new Hash().hset("token"+phone, "token", clientId);
-				redis.expire("token"+phone, 1800);
+				//redis.expire("token"+phone, 1800);
 				this.changeLogin(phone, token, clientId, type);
 				result.put("token", token);
 			}
