@@ -675,6 +675,10 @@ public class CutCompanyController {
 				//创建web端关联关系
 				ucd.setType("0");
 				userCompanyService.insertSelective(ucd);
+				
+				UserCompanyDefault ucdf = userCompanyService.selectBySoleUserId(uuser.getUserid(), "0");
+				userCompanyService.updateUserCompanyCoption(ucdf.getUserId(), ucdf.getCompanyId(), "2","0");
+				userCompanyService.updateUserCompanyCoption(uuser.getUserid(), company.getCompany_id(), "1","0");
 			}catch(NullPointerException e){
 				e.printStackTrace();
 				logger.info(e);
