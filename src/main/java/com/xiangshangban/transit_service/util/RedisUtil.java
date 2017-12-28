@@ -9,6 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import redis.clients.jedis.BinaryClient.LIST_POSITION;
+import redis.clients.jedis.Client;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -19,7 +20,7 @@ import redis.clients.util.SafeEncoder;
 public class RedisUtil {
      private static final RedisUtil redis = new RedisUtil();
      private static final Log LOG = LogFactory.getLog(RedisUtil.class);
-     
+     private Client client;
      //连接超时时间
      private final static int LINK_TIMEOUT = 10000;
      //缓存生存时间

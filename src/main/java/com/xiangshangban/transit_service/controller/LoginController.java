@@ -422,15 +422,17 @@ public class LoginController {
 					}
 				}else {
 					// 首次登录,或退出账号时
+					UniqueLogin uniqueLogin = uniqueLoginService.selectByPhoneFromApp(phone);
+					if(uniqueLogin!=null){
+						redis.new Hash().hdel(uniqueLogin.getToken());
+						//删除app上次登录记录
+						uniqueLoginService.deleteByPhoneFromApp(phone);
+					}
 					token = FileMD5Util.getMD5String(phone + now + salt);
 					newLogin = new Login(FormatUtil.createUuid(), phone, token, salt, now, effectiveTime, sessionId,
 							null, null, "1", clientId);
 					loginService.insertSelective(newLogin);
-					UniqueLogin uniqueLogin = uniqueLoginService.selectByPhoneFromApp(phone);
-					if(uniqueLogin!=null){
-						//删除app上次登录记录
-						uniqueLoginService.deleteByPhoneFromApp(phone);
-					}
+					
 					//添加本次登录记录
 					uniqueLoginService.insert(new UniqueLogin(FormatUtil.createUuid(),phone,"",token,clientId,"1",now));
 				}
@@ -465,14 +467,15 @@ public class LoginController {
 					result.put("returnCode", "4000");
 					return result;
 				}
-				
+				UniqueLogin uniqueLogin = uniqueLoginService.selectByPhoneFromWeb(phone);
+				if(uniqueLogin!=null){
+					redis.new Hash().hdel(uniqueLogin.getSessionId());
+					uniqueLoginService.deleteByPhoneFromWeb(phone);
+				}
 				newLogin = new Login(FormatUtil.createUuid(), phone, null, null, now, effectiveTime, sessionId, null,
 						null, "1", "web");
 				loginService.insertSelective(newLogin);
-				UniqueLogin uniqueLogin = uniqueLoginService.selectByPhoneFromWeb(phone);
-				if(uniqueLogin!=null){
-					uniqueLoginService.deleteByPhoneFromWeb(phone);
-				}
+				
 				uniqueLoginService.insert(new UniqueLogin(FormatUtil.createUuid(),phone,sessionId,"","","0",now));
 				Uusers user = uusersService.selectCompanyBySessionId(sessionId);
 				
@@ -507,21 +510,22 @@ public class LoginController {
 					redis.expire(token, 1800);
 				}*/
 				redis.new Hash().hset(token, "token", phone);
-				//redis.expire(token, 1800);
-				/*redis.getJedis().hset("token"+phone, "token", clientId);
-				redis.getJedis().expire("token"+phone, 1800);*/
+				redis.expire(token,31536000);
+				//redis.getJedis().expire(token, 1800);
 				redis.new Hash().hset("token"+phone, "token", clientId);
+				redis.expire("token"+phone,31536000);
+				//redis.getJedis().expire("token"+phone, 1800);
+				//RedisUtil.getInstance().new Hash().hset("token"+phone, "token", clientId);
 				//redis.expire("token"+phone, 1800);
 				this.changeLogin(phone, token, clientId, type);
-				result.put("token", token);
 			}
 			if("0".equals(type)){
 				//String sessionId = request.getSession().getId();
 				System.out.println("success\t:"+sessionId);
-				/*redis.getJedis().hset(sessionId, "session", phone);
+				redis.getJedis().hset(sessionId, "session", phone);
 				redis.getJedis().expire(sessionId, 1800);
 				redis.getJedis().hset("session"+phone, "session", sessionId);
-				redis.getJedis().expire("session"+phone, 1800);*/
+				redis.getJedis().expire("session"+phone, 1800);
 				redis.new Hash().hset(sessionId, "session", phone);
 				redis.expire(sessionId, 1800);
 				redis.new Hash().hset("session"+phone, "session", sessionId);

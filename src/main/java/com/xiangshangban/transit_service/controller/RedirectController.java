@@ -54,6 +54,7 @@ public class RedirectController {
 		//根据token获得当前用户id,公司id
 		String token = request.getHeader("token");
 		String type = request.getHeader("type");
+		String clientId = request.getHeader("clientId");
 		String phone="";
 		Uusers user = new Uusers();
 		if (StringUtils.isEmpty(token)) {
@@ -61,10 +62,11 @@ public class RedirectController {
 			System.out.println("redirectController : "+sessionId);
 			phone = redis.new Hash().hget(sessionId, "session");
 			redis.expire(sessionId,1800);
+			//user = userService.selectByPhone(phone,type);
 			//user = userService.selectCompanyBySessionId(sessionId);
 		} else {
 			phone = redis.new Hash().hget(token, "token");
-			//redis.expire(token,1800);
+			redis.expire(token,1800);
 			//user = userService.selectCompanyByToken(token);
 		}
 		user = userService.selectByPhone(phone,type);
