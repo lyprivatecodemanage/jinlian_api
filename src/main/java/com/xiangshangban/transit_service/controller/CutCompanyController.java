@@ -247,6 +247,12 @@ public class CutCompanyController {
         Company company = new Company();
         
 		try {
+			if(companyName.indexOf("(")>-1){
+        		companyName = companyName.replaceAll("[\\(\\)]", "");
+        	}
+        	if(companyName.indexOf("（")>-1){
+        		companyName = companyName.replaceAll("[\\（\\）]", "");
+        	}
 			// 生成公司创建时间
             Date date = new Date(System.currentTimeMillis());
 			
@@ -604,6 +610,12 @@ public class CutCompanyController {
 	        Company company = new Company();
 	        
 			try {
+				if(companyName.indexOf("(")>-1){
+            		companyName = companyName.replaceAll("[\\(\\)]", "");
+            	}
+            	if(companyName.indexOf("（")>-1){
+            		companyName = companyName.replaceAll("[\\（\\）]", "");
+            	}
 				// 生成公司创建时间
 	            Date date = new Date(System.currentTimeMillis());
 				
@@ -675,6 +687,10 @@ public class CutCompanyController {
 				//创建web端关联关系
 				ucd.setType("0");
 				userCompanyService.insertSelective(ucd);
+				
+				UserCompanyDefault ucdf = userCompanyService.selectBySoleUserId(uuser.getUserid(), "0");
+				userCompanyService.updateUserCompanyCoption(ucdf.getUserId(), ucdf.getCompanyId(), "2","0");
+				userCompanyService.updateUserCompanyCoption(uuser.getUserid(), company.getCompany_id(), "1","0");
 			}catch(NullPointerException e){
 				e.printStackTrace();
 				logger.info(e);
@@ -792,13 +808,35 @@ public class CutCompanyController {
 	@RequestMapping(value="/appSelectCompanyByCompanyNo",method=RequestMethod.POST)
 	public Map<String,Object> appSelectCompanyByCompanyNo(String companyNo,HttpServletRequest request){
 		Map<String,Object> map = new HashMap<>();
-
+		String token = request.getHeader("token");
+		// 初始化redis
+		RedisUtil redis = RedisUtil.getInstance();
 		try {
+			// 从redis取出短信验证码
+			String phone = redis.new Hash().hget(token, "token");
+									
+			Uusers user = uusersService.selectByPhone(phone,"1");
+			
 			Company company = companyService.selectByCompanyName(companyNo);
+			
+			UserCompanyDefault ucd = userCompanyService.selectByUserIdAndCompanyId(user.getUserid(),company.getCompany_id(),"1");
+			
+			
+			if(ucd!=null){
+				map.put("returnCode", "4029");
+				map.put("message", "已加入该公司");
+				return map;
+			}
 			
 			map.put("company",company);
 			map.put("returnCode", "3000");
 			map.put("message", "数据请求成功");
+			return map;
+		} catch (NullPointerException e){
+			e.printStackTrace();
+			logger.info(e);
+			map.put("returnCode", "4030");
+			map.put("message", "未找到该公司");
 			return map;
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -848,7 +886,6 @@ public class CutCompanyController {
                 UserCompanyDefault ucd = userCompanyService.selectByUserIdAndCompanyId(userId,company.getCompany_id(),"1");
                 
                 if(ucd==null){
-                
                     Date joinDate = new Date();
                     
 					// 加入公司 新增待审核表记录

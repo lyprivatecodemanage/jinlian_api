@@ -42,10 +42,11 @@ import com.xiangshangban.transit_service.shiro.CredentialsMatcher;
  *
  */
 @EnableAutoConfiguration(exclude = { MultipartAutoConfiguration.class })
-@SpringBootApplication
 @EnableTransactionManagement
+@SpringBootApplication
 @ServletComponentScan
 public class ApiApplication {
+	
 	public static void main(String[] args) {
 		SpringApplication.run(ApiApplication.class, args);
 	}
