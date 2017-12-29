@@ -796,13 +796,35 @@ public class CutCompanyController {
 	@RequestMapping(value="/appSelectCompanyByCompanyNo",method=RequestMethod.POST)
 	public Map<String,Object> appSelectCompanyByCompanyNo(String companyNo,HttpServletRequest request){
 		Map<String,Object> map = new HashMap<>();
-
+		String token = request.getHeader("token");
+		// 初始化redis
+		RedisUtil redis = RedisUtil.getInstance();
 		try {
+			// 从redis取出短信验证码
+			String phone = redis.new Hash().hget(token, "token");
+									
+			Uusers user = uusersService.selectByPhone(phone,"1");
+			
 			Company company = companyService.selectByCompanyName(companyNo);
+			
+			UserCompanyDefault ucd = userCompanyService.selectByUserIdAndCompanyId(user.getUserid(),company.getCompany_id(),"1");
+			
+			
+			if(ucd!=null){
+				map.put("returnCode", "4029");
+				map.put("message", "已加入该公司");
+				return map;
+			}
 			
 			map.put("company",company);
 			map.put("returnCode", "3000");
 			map.put("message", "数据请求成功");
+			return map;
+		} catch (NullPointerException e){
+			e.printStackTrace();
+			logger.info(e);
+			map.put("returnCode", "4030");
+			map.put("message", "未找到该公司");
 			return map;
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -852,7 +874,6 @@ public class CutCompanyController {
                 UserCompanyDefault ucd = userCompanyService.selectByUserIdAndCompanyId(userId,company.getCompany_id(),"1");
                 
                 if(ucd==null){
-                
                     Date joinDate = new Date();
                     
 					// 加入公司 新增待审核表记录
