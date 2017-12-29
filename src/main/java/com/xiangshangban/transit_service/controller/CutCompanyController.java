@@ -247,6 +247,12 @@ public class CutCompanyController {
         Company company = new Company();
         
 		try {
+			if(companyName.indexOf("(")>-1){
+        		companyName = companyName.replaceAll("[\\(\\)]", "");
+        	}
+        	if(companyName.indexOf("（")>-1){
+        		companyName = companyName.replaceAll("[\\（\\）]", "");
+        	}
 			// 生成公司创建时间
             Date date = new Date(System.currentTimeMillis());
 			
@@ -604,6 +610,12 @@ public class CutCompanyController {
 	        Company company = new Company();
 	        
 			try {
+				if(companyName.indexOf("(")>-1){
+            		companyName = companyName.replaceAll("[\\(\\)]", "");
+            	}
+            	if(companyName.indexOf("（")>-1){
+            		companyName = companyName.replaceAll("[\\（\\）]", "");
+            	}
 				// 生成公司创建时间
 	            Date date = new Date(System.currentTimeMillis());
 				
