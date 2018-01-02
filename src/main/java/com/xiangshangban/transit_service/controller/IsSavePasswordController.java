@@ -68,9 +68,17 @@ public class IsSavePasswordController {
 	@RequestMapping(value="/validateSmsCode",produces="application/json;charset=UTF-8",method=RequestMethod.POST)
 	public Map<String,Object> validateSmsCode(@RequestBody String jsonString,HttpServletRequest request){
 		Map<String,Object> result =new HashMap<String,Object>();
-		JSONObject obj = JSON.parseObject(jsonString);
-		String phone = obj.getString("phone");
-		String smsCode = obj.getString("smsCode");
+		String type = request.getHeader("type");
+		String phone ="";
+		String smsCode = "";
+		if("1".equals(type)){
+			 phone = request.getParameter("phone");
+			 smsCode = request.getParameter("smsCode");
+		}else{
+			JSONObject obj = JSON.parseObject(jsonString);
+			phone = obj.getString("phone");
+			smsCode = obj.getString("smsCode");
+		}
 		try{
 			if(StringUtils.isEmpty(phone) || StringUtils.isEmpty(smsCode)){
 				result.put("message", "必传参数为空");
@@ -130,16 +138,27 @@ public class IsSavePasswordController {
 	@RequestMapping(value="/setPassword",produces="application/json;charset=utf-8",method=RequestMethod.POST)
 	public Map<String,Object> setPassword(@RequestBody String jsonString,HttpServletRequest request){
 		Map<String,Object> result =new HashMap<String,Object>();
-		JSONObject obj = JSON.parseObject(jsonString);
 		try{
-			Subject subject = SecurityUtils.getSubject();
-			String phone = obj.getString("phone");
-			String newPassword = obj.getString("newPassword");
+			String type = request.getHeader("type");
+			String phone = "";
+			String newPassword = "";
+			String voucher = "";
+			if("1".equals(type)){
+				phone = request.getParameter("phone");
+				newPassword = request.getParameter("newPassword");
+				voucher = request.getParameter("voucher");
+			}else{
+				JSONObject obj = JSON.parseObject(jsonString);
+				phone = obj.getString("phone");
+				newPassword = obj.getString("newPassword");
+				voucher = obj.getString("voucher");
+			}
 			if(StringUtils.isEmpty(phone)||StringUtils.isEmpty(newPassword)){
 				result.put("message", "必传参数为空");
 				result.put("returnCode", "3006");
 				return result;
 			}
+			Subject subject = SecurityUtils.getSubject();
 			boolean flag = subject.isAuthenticated();
 			if(flag){
 				Uusers user = uusersService.selectUserByPhone(phone);
@@ -157,7 +176,7 @@ public class IsSavePasswordController {
 					}
 				}
 			}else{
-				String voucher = obj.getString("voucher");
+				
 				if(StringUtils.isEmpty(voucher)){
 					result.put("message", "必传参数为空");
 					result.put("returnCode", "3006");
