@@ -121,14 +121,13 @@ public class ServletFilter implements Filter {
 							flag = false;
 							redirect = true;
 						}
-
 						if (uri.indexOf("registerController") > -1 || uri.indexOf("loginController") > -1) {
 							flag = false;
 							redirect = false;
 						}
 						System.err.println("进入注册登录模块");
 					} else {
-						UniqueLogin uniqueLogin = uniqueLoginService.selectByPhoneFromWeb(phone.toString());
+						UniqueLogin uniqueLogin = uniqueLoginService.selectByPhoneFromWeb(phone.toString().split("_")[0]);
 						if (uniqueLogin != null) {
 							String oldSessionId = uniqueLogin.getSessionId();
 							// sessionId 不一致则是登录掉线
