@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiangshangban.transit_service.dao.UpdateVersionMapper">
+<resultMap id="BaseResultMap" type="com.xiangshangban.transit_service.bean.UpdateVersion">
+    <result column="id" jdbcType="VARCHAR" property="id" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="app_type" jdbcType="VARCHAR" property="appType" />
+  </resultMap>
+  
+  <sql id="Base_list">
+  	id,code,name,address,app_type
+  </sql>
+  
+  <select id="FindNewFile" resultMap="BaseResultMap">
+  	SELECT 
+	<include refid="Base_list"/>
+	FROM public.update_version
+	ORDER BY code DESC
+	LIMIT 1
+  </select>
+  
+</mapper>
