@@ -96,7 +96,7 @@ public class RedirectController {
 			}
 		}
 		String contentType = request.getHeader("content-type");
-		if (contentType.contains("application/json")) {
+		if (StringUtils.isNotEmpty(contentType)&&contentType.contains("application/json")) {
 			try {
 				String jsonStr = RequestJSONUtil.getRequestJsonString(request);
 				if (StringUtils.isNotEmpty(jsonStr)) {
