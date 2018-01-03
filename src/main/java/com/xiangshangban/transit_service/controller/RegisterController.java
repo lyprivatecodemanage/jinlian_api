@@ -197,6 +197,8 @@ public class RegisterController {
             	}
             	if(companyName.indexOf("（")>-1){
             		companyNameNo = companyName.replaceAll("[\\（\\）]", "");
+            	}else{
+            		companyNameNo = companyName;
             	}
             	// 生成公司创建时间
                 Date date = new Date(System.currentTimeMillis());
