@@ -191,11 +191,12 @@ public class RegisterController {
             }
 
             try {
+            	String companyNameNo  = "";
             	if(companyName.indexOf("(")>-1){
-            		companyName = companyName.replaceAll("[\\(\\)]", "");
+            		companyNameNo = companyName.replaceAll("[\\(\\)]", "");
             	}
             	if(companyName.indexOf("（")>-1){
-            		companyName = companyName.replaceAll("[\\（\\）]", "");
+            		companyNameNo = companyName.replaceAll("[\\（\\）]", "");
             	}
             	// 生成公司创建时间
                 Date date = new Date(System.currentTimeMillis());
@@ -212,11 +213,11 @@ public class RegisterController {
 				company.setCompany_type("0");
 				// 注册公司名称首字母缩写
                 String companyNameLo = "";
-				if (companyName.length() > 4) {
+				if (companyNameNo.length() > 4) {
 					// 根据公司名称生成前四位字母小写
-                    companyNameLo = new PinYin2Abbreviation().cn2py(companyName).substring(0,4);
+                    companyNameLo = new PinYin2Abbreviation().cn2py(companyNameNo).substring(0,4);
                 } else {
-                    companyNameLo = new PinYin2Abbreviation().cn2py(companyName);
+                    companyNameLo = new PinYin2Abbreviation().cn2py(companyNameNo);
                 }
                 SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
                 String sDate = sdf1.format(date);
