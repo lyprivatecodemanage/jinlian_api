@@ -38,9 +38,18 @@ public class IsSavePasswordController {
 	public Map<String,Object> isSavePasswd(HttpServletRequest request){
 		Map<String,Object> result =new HashMap<String,Object>();
 		String type = request.getHeader("type");
+		String token = request.getHeader("token");
+		String clientId = request.getHeader("clientId");
+		Subject subject = SecurityUtils.getSubject();
+		String phone = "";
 		try{
-			Subject subject = SecurityUtils.getSubject();
-			String phone = subject.getPrincipal().toString();
+			if(StringUtils.isNotEmpty(type)&&"1".equals(type)){
+				RedisUtil redis =RedisUtil.getInstance();
+				phone = redis.new Hash().hget(token, "token");
+				redis.expire(token, 1800);
+			}else{
+				phone = subject.getPrincipal().toString();
+			}
 			Uusers user = uusersService.selectByPhone(phone,type);
 			if(StringUtils.isEmpty(user.getUserpwd())){
 				result.put("message", "目前没有设置密码,请设置密码");
