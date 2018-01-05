@@ -26,7 +26,7 @@ public class AndroidController {
 	UpdateVersionService updateVersionService;
 	
 	/**
-	 * 获取数据库中最新Android信息记录
+	 * 焦振/获取数据库中最新Android信息记录
 	 * @param request
 	 * @return
 	 */
