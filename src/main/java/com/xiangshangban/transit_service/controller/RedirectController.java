@@ -1,7 +1,6 @@
 package com.xiangshangban.transit_service.controller;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -12,8 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,8 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.xiangshangban.transit_service.bean.ReturnData;
+import com.xiangshangban.transit_service.bean.UniqueLogin;
 import com.xiangshangban.transit_service.bean.Uusers;
 import com.xiangshangban.transit_service.service.LoginService;
+import com.xiangshangban.transit_service.service.UniqueLoginService;
 import com.xiangshangban.transit_service.service.UusersService;
 import com.xiangshangban.transit_service.util.HttpClientUtil;
 import com.xiangshangban.transit_service.util.RedisUtil;
@@ -41,7 +40,8 @@ public class RedirectController {
 	UusersService userService;
 	@Autowired
 	LoginService loginService;
-
+	@Autowired
+	UniqueLoginService uniqueLoginService;
 	/**
 	 * 请求接口（json）
 	 * @param req
@@ -66,8 +66,21 @@ public class RedirectController {
 			//user = userService.selectCompanyBySessionId(sessionId);
 		} else {
 			phone = redis.new Hash().hget(token, "token");
-			redis.expire(token,1800);
+			//redis.expire(token,1800);
 			//user = userService.selectCompanyByToken(token);
+			if(StringUtils.isEmpty(phone)){
+				UniqueLogin uniqueLogin = uniqueLoginService.selectByTokenAndClientId(token, clientId);
+				if(uniqueLogin!=null&&StringUtils.isNotEmpty(uniqueLogin.getPhone())){
+					phone = uniqueLogin.getPhone();
+					redis.new Hash().hset(token, "token", phone);
+					redis.expire(token,31536000);
+				}else{
+					ReturnData returnData = new ReturnData();
+					returnData.setReturnCode("3003");
+					returnData.setMessage("用户身份获取失败");
+					return JSON.toJSONString(returnData);
+				}
+			}
 		}
 		user = userService.selectByPhone(phone,type);
 
@@ -128,6 +141,7 @@ public class RedirectController {
 		RedisUtil redis = RedisUtil.getInstance();
 		//根据token获得当前用户id,公司id
 		String token = request.getHeader("token");
+		String clientId = request.getHeader("clientId");
 		//String type = request.getHeader("type");
 		Uusers user = new Uusers();
 		String  phone = "";
@@ -140,6 +154,19 @@ public class RedirectController {
 			phone = redis.new Hash().hget(token, "token");
 			//redis.expire(token,1800);
 			//user = userService.selectCompanyByToken(token);
+			if(StringUtils.isEmpty(phone)){
+				UniqueLogin uniqueLogin = uniqueLoginService.selectByTokenAndClientId(token, clientId);
+				if(uniqueLogin!=null&&StringUtils.isNotEmpty(uniqueLogin.getPhone())){
+					phone = uniqueLogin.getPhone();
+					redis.new Hash().hset(token, "token", phone);
+					redis.expire(token,31536000);
+				}else{
+					ReturnData returnData = new ReturnData();
+					returnData.setReturnCode("3003");
+					returnData.setMessage("用户身份获取失败");
+					return JSON.toJSONString(returnData);
+				}
+			}
 		}
 		user = userService.selectByPhone(phone,"0");
 		if(user==null || StringUtils.isEmpty(user.getCompanyId()) || StringUtils.isEmpty(user.getUserid())){
