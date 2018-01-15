@@ -456,7 +456,7 @@ public class CutCompanyController {
 			List<UserCompanyDefault> list = userCompanyService.selectByUserId(userId,"1");
 			
 			for (UserCompanyDefault userCompanyDefault : list) {
-				if(userCompanyDefault.getCurrentOption()!="1"&&!"1".equals(userCompanyDefault.getCurrentOption())){
+				if(userCompanyDefault.getCurrentOption()!="1"&&!"1".equals(userCompanyDefault.getCurrentOption())&& userCompanyDefault.getIsActive().equals("1")){
 					Company company = companyService.selectByPrimaryKey(userCompanyDefault.getCompanyId());
 					Map<String,Object> comMap = new HashMap<>();
 					comMap.put("companyName", company.getCompany_name());
