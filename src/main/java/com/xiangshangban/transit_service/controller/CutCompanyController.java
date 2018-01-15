@@ -106,7 +106,7 @@ public class CutCompanyController {
 			}
 			
 			for (UserCompanyDefault userCompanyDefault : list) {
-				if(!"1".equals(userCompanyDefault.getCurrentOption().trim()) && userCompanyDefault.getCurrentOption().trim()!="1"){
+				if(!"1".equals(userCompanyDefault.getCurrentOption().trim()) && userCompanyDefault.getCurrentOption().trim()!="1" && userCompanyDefault.getIsActive().equals("1")){
 					userCompanyList.add(userCompanyDefault);
 				}
 			}

@@ -16,7 +16,7 @@
   <select id="FindNewFile" resultMap="BaseResultMap">
   	SELECT 
 	<include refid="Base_list"/>
-	FROM public.update_version
+	FROM update_version
 	ORDER BY code DESC
 	LIMIT 1
   </select>
