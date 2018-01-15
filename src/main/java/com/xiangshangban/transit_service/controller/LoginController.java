@@ -496,25 +496,10 @@ public class LoginController {
 				session.setAttribute("companyId", user.getCompanyId());
 			}
 			if("1".equals(type)){
-				/*if(StringUtils.isEmpty(token)){
-					redis.new Hash().hset(token, "token", phone);
-					redis.expire(token, 1800);
-				}else{
-					String redisPhone = String.valueOf(redis.getJedis().hget(token, "token"));
-					if(StringUtils.isEmpty(redisPhone)){
-						token = FormatUtil.createUuid();
-					}
-					redis.new Hash().hset(token, "token", phone);
-					redis.expire(token, 1800);
-				}*/
 				redis.new Hash().hset(token, "token", phone);
 				redis.expire(token,31536000);
-				//redis.getJedis().expire(token, 1800);
 				redis.new Hash().hset("token"+phone, "token", clientId);
 				redis.expire("token"+phone,31536000);
-				//redis.getJedis().expire("token"+phone, 1800);
-				//RedisUtil.getInstance().new Hash().hset("token"+phone, "token", clientId);
-				//redis.expire("token"+phone, 1800);
 				this.changeLogin(phone, token, clientId, type);
 			}
 			if("0".equals(type)){
@@ -715,6 +700,7 @@ public class LoginController {
 		String type = request.getHeader("type");
 		YtxSmsUtil sms = new YtxSmsUtil("LTAIcRopzlp5cbUd", "VnLMEEXQRukZQSP6bXM6hcNWPlphiP");
 		try {
+			RedisUtil redis = RedisUtil.getInstance();
 			Uusers user = uusersService.selectByPhone(phone,type);
 			// 获取验证码
 			String smsCode = "";
@@ -722,14 +708,16 @@ public class LoginController {
 			if("test".equals(PropertiesUtils.ossProperty("ossEnvironment")) || "15995611270".equals(phone)){
 				smsCode = "6666";
 			}else{
-				smsCode = sms.sendIdSms(phone);
+				smsCode = redis.new Hash().hget("smsCode_"+ phone, "smsCode");
+				if(StringUtils.isEmpty(smsCode)){
+					smsCode = sms.sendIdSms(phone);
+				}
 			}
 			// user不为null,说明是登录获取验证码
 			if (user != null) {
 				// 更新数据库验证码记录,当做登录凭证
 				uusersService.updateSmsCode(phone, smsCode);
 			}
-			RedisUtil redis = RedisUtil.getInstance();
 			// 设值
 			redis.new Hash().hset("smsCode_" + phone, "smsCode", smsCode);
 			// 设置redis保存时间

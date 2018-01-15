@@ -167,6 +167,15 @@ public class IsSavePasswordController {
 				result.put("returnCode", "3006");
 				return result;
 			}
+			if("2".equals(phone)){
+				RedisUtil redis = RedisUtil.getInstance();
+				phone = redis.new Hash().hget(request.getSession().getId(), "session");
+				if(StringUtils.isEmpty(phone)){
+					result.put("message", "用户身份信息缺失");
+					result.put("returnCode", "3003");
+					return result;
+				}
+			}
 			Subject subject = SecurityUtils.getSubject();
 			boolean flag = subject.isAuthenticated();
 			if(flag){

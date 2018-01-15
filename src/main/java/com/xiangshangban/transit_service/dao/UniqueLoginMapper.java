@@ -16,7 +16,7 @@ public interface UniqueLoginMapper {
 	
 	UniqueLogin selectByToken(String token);
 	
-	UniqueLogin selectByTokenAndClientId(String token,String clientId);
+	UniqueLogin selectByTokenAndClientId(@Param("token")String token,@Param("clientId")String clientId);
 	
 	int insert(UniqueLogin uniqueLogin);
 	
