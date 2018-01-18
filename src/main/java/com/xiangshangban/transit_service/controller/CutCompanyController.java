@@ -106,8 +106,10 @@ public class CutCompanyController {
 			}
 			
 			for (UserCompanyDefault userCompanyDefault : list) {
-				if(!"1".equals(userCompanyDefault.getCurrentOption().trim()) && userCompanyDefault.getCurrentOption().trim()!="1" && userCompanyDefault.getIsActive().equals("1")){
-					userCompanyList.add(userCompanyDefault);
+				if(!"1".equals(userCompanyDefault.getCurrentOption().trim()) && userCompanyDefault.getCurrentOption().trim()!="1"){
+					if(userCompanyDefault.getIsActive().equals("1")){
+						userCompanyList.add(userCompanyDefault);
+					}
 				}
 			}
 			
@@ -465,7 +467,7 @@ public class CutCompanyController {
 					comMap.put("userPhone", company.getUser_name());
 					comMap.put("DefaultOption","0");
 					conpanyList.add(comMap);
-				}else{
+				}else if(userCompanyDefault.getCurrentOption()!="2"&&!"2".equals(userCompanyDefault.getCurrentOption())&& userCompanyDefault.getIsActive().equals("1")){
 					Company company = companyService.selectByPrimaryKey(userCompanyDefault.getCompanyId());
 					Map<String,Object> comMap = new HashMap<>();
 					comMap.put("companyName", company.getCompany_name());
