@@ -405,6 +405,8 @@ public class CutCompanyController {
 			department.setCompanyId(company.getCompany_id());
 			
 			departmentService.insertDepartment(department);
+			 //排班设置
+			addClasses(company.getCompany_id(), userId);
 			
 			map.put("companyName",company.getCompany_name());
 			map.put("companyNo",company.getCompany_no());
@@ -426,7 +428,30 @@ public class CutCompanyController {
             return map;
 		}
 	}
-	
+	private void addClasses(String companyId, String userId) {
+		Employee employee = employeeService.selectByEmployee(userId,companyId);
+		Map<String,Object> classesMap = new HashMap<String,Object>();
+		
+		classesMap.put("companyId", companyId);
+		
+		try {
+			String result = HttpClientUtil.sendRequet(PropertiesUtils.pathUrl("addDefaultClassesType"), classesMap);
+			logger.info("设置默认班次成功"+result);
+		} catch (IOException e) {
+			logger.info("设置默认班次，获取路径出错");
+			e.printStackTrace();
+		}
+		List<Employee> cmdlist=new ArrayList<Employee>();
+		cmdlist.add(employee);
+		classesMap.put("empIdList", cmdlist);
+		try {
+			String result = HttpClientUtil.sendRequet(PropertiesUtils.pathUrl("addDefaultEmpClasses"), classesMap);
+			logger.info("给管理员设置默认排班成功"+result);
+		} catch (IOException e) {
+			logger.info("管理员设置默认排班，获取路径出错");
+			e.printStackTrace();
+		}
+	}
 	/***
 	 *  焦振/APP 查看登录用户所属所有公司
 	 * @param request
@@ -772,6 +797,8 @@ public class CutCompanyController {
 				department.setCompanyId(company.getCompany_id());
 				
 				departmentService.insertDepartment(department);
+				 //排班设置
+				addClasses(company.getCompany_id(), userId);
 				
 				map.put("companyName",company.getCompany_name());
 				map.put("companyNo",company.getCompany_no());

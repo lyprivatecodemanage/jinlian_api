@@ -367,7 +367,6 @@ public class RegisterController {
 				map.put("user_name", userName);
 				map.put("returnCode", "3000");
 				map.put("message", "数据请求成功");
-				return map;
 			} catch (Exception e) {
 				// TODO: handle exception
 				e.printStackTrace();
@@ -381,7 +380,9 @@ public class RegisterController {
 				map.put("message", "服务器错误");
 				return map;
 			}
-			
+			//排班设置
+			addClasses(companyId, userId);
+			return map;
         }
 
         if (type.equals("1")) {
@@ -528,7 +529,7 @@ public class RegisterController {
 					map.put("user_name", company.getUser_name());
 					map.put("returnCode", "3000");
 					map.put("message", "数据请求成功");
-					return map;
+					
                 } else {
                 	uusersService.deleteByPrimaryKey(userId);
                     map.put("returnCode", "4006");
@@ -543,12 +544,38 @@ public class RegisterController {
 				map.put("message", "服务器错误");
                 return map;
             }
+            return map;
         }
 		uusersService.deleteByPrimaryKey(userId);
 		map.put("returnCode", "3001");
 		map.put("message", "服务器错误");
 		return map;
     }
+
+	private void addClasses(String companyId, String userId) {
+		Employee employee = employeeService.selectByEmployee(userId,companyId);
+		Map<String,Object> classesMap = new HashMap<String,Object>();
+		
+		classesMap.put("companyId", companyId);
+		
+		try {
+			String result = HttpClientUtil.sendRequet(PropertiesUtils.pathUrl("addDefaultClassesType"), classesMap);
+			logger.info("设置默认班次成功"+result);
+		} catch (IOException e) {
+			logger.info("设置默认班次，获取路径出错");
+			e.printStackTrace();
+		}
+		List<Employee> cmdlist=new ArrayList<Employee>();
+		cmdlist.add(employee);
+		classesMap.put("empIdList", cmdlist);
+		try {
+			String result = HttpClientUtil.sendRequet(PropertiesUtils.pathUrl("addDefaultEmpClasses"), classesMap);
+			logger.info("给管理员设置默认排班成功"+result);
+		} catch (IOException e) {
+			logger.info("管理员设置默认排班，获取路径出错");
+			e.printStackTrace();
+		}
+	}
 
     /***
 	 * 焦振/查询手机号是否已被注册
