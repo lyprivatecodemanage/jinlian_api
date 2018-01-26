@@ -429,11 +429,8 @@ public class CutCompanyController {
 		}
 	}
 	private void addClasses(String companyId, String userId) {
-		Employee employee = employeeService.selectByEmployee(userId,companyId);
 		Map<String,Object> classesMap = new HashMap<String,Object>();
-		
 		classesMap.put("companyId", companyId);
-		
 		try {
 			String result = HttpClientUtil.sendRequet(PropertiesUtils.pathUrl("addDefaultClassesType"), classesMap);
 			logger.info("设置默认班次成功"+result);
@@ -441,8 +438,10 @@ public class CutCompanyController {
 			logger.info("设置默认班次，获取路径出错");
 			e.printStackTrace();
 		}
-		List<Employee> cmdlist=new ArrayList<Employee>();
-		cmdlist.add(employee);
+		List<Map<String,Object>> cmdlist=new ArrayList<Map<String,Object>>();
+		Map<String,Object> empIdMap = new HashMap<String,Object>();
+		empIdMap.put("empId", userId);
+		cmdlist.add(empIdMap);
 		classesMap.put("empIdList", cmdlist);
 		try {
 			String result = HttpClientUtil.sendRequet(PropertiesUtils.pathUrl("addDefaultEmpClasses"), classesMap);
