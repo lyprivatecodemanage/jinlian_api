@@ -279,6 +279,16 @@ public class AdministratorController {
 				
 				//将 历史管理员记录更新到新的管理员记录上
 				uusersRolesService.updateAdministrator(newUserId, companyId, historyUserIds,new Uroles().admin_role);
+				
+				Uusers u = uusersService.selectById(newUserId);
+				
+				//修改公司信息里面联系人姓名 与 登录号
+				Company c = new Company();
+				c.setCompany_id(companyId);
+				c.setCompany_personal_name(u.getUsername());
+				c.setUser_name(u.getPhone());
+				
+				companyService.updateByPrimaryKeySelective(c);
 			}
 			
 			//将原来管理员的默认公司修改为其他拥有管理员身份的公司
