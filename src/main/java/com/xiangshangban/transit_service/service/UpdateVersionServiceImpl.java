@@ -13,9 +13,9 @@ public class UpdateVersionServiceImpl implements UpdateVersionService {
 	UpdateVersionMapper updateVersionMapper;
 	
 	@Override
-	public UpdateVersion FindNewFile() {
+	public UpdateVersion FindNewFile(String appType) {
 		// TODO Auto-generated method stub
-		return updateVersionMapper.FindNewFile();
+		return updateVersionMapper.FindNewFile(appType);
 	}
 
 }

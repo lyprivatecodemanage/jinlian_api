@@ -7,6 +7,11 @@ import com.xiangshangban.transit_service.bean.UpdateVersion;
 @Mapper
 public interface UpdateVersionMapper {
 
-	//查看android 最新版本信息
-	UpdateVersion FindNewFile();
+	/**
+	 * 查看最新版本信息
+	 * 
+	 * @param appType 0：安卓 1：ios
+	 * @return
+	 */
+	UpdateVersion FindNewFile(String appType);
 }
