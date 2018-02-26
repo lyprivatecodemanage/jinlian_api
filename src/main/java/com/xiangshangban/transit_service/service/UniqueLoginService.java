@@ -1,6 +1,8 @@
 package com.xiangshangban.transit_service.service;
 
 
+import java.util.List;
+
 import com.xiangshangban.transit_service.bean.UniqueLogin;
 
 public interface UniqueLoginService {
@@ -8,6 +10,8 @@ public interface UniqueLoginService {
 	UniqueLogin selectByPhoneFromApp(String phone);
 
 	UniqueLogin selectByPhoneFromWeb(String phone);
+	
+	List<UniqueLogin> selectByPhoneFromWebList(String phone);
 	
 	UniqueLogin selectBySessionId(String sessionId);
 

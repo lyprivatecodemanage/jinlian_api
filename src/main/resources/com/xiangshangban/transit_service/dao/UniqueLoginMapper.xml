@@ -19,6 +19,11 @@
 		from unique_login
 		where phone = #{phone} and status = '0'
 	</select>
+	<select id="selectByPhoneFromWebList" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select <include refid="Base_Column_List"/>
+		from unique_login
+		where phone = #{phone} and status = '0'
+	</select>
 	<select id="selectByPhoneFromApp" parameterType="java.lang.String" resultMap="BaseResultMap">
 		select <include refid="Base_Column_List"/>
 		from unique_login

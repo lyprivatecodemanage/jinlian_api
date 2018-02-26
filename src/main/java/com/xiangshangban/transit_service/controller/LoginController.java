@@ -465,10 +465,12 @@ public class LoginController {
 					result.put("returnCode", "4000");
 					return result;
 				}
-				UniqueLogin uniqueLogin = uniqueLoginService.selectByPhoneFromWeb(phone);
-				if(uniqueLogin!=null){
-					redis.new Hash().hdel(uniqueLogin.getSessionId());
-					uniqueLoginService.deleteByPhoneFromWeb(phone);
+				List<UniqueLogin> uniqueLoginList = uniqueLoginService.selectByPhoneFromWebList(phone);
+				if(uniqueLoginList!=null&&uniqueLoginList.size()>0){
+					for(UniqueLogin uniqueLogin:uniqueLoginList){
+						redis.new Hash().hdel(uniqueLogin.getSessionId());
+						uniqueLoginService.deleteByPhoneFromWeb(phone);
+					}
 				}
 				newLogin = new Login(FormatUtil.createUuid(), phone, null, null, now, effectiveTime, sessionId, null,
 						null, "1", "web");

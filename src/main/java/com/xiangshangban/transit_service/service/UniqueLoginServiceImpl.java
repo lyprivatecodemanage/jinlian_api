@@ -1,5 +1,7 @@
 package com.xiangshangban.transit_service.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +22,12 @@ public class UniqueLoginServiceImpl implements UniqueLoginService{
 	public UniqueLogin selectByPhoneFromWeb(String phone) {
 		return uniqueLoginMapper.selectByPhoneFromWeb(phone);
 	}
-
+	
+	@Override
+	public List<UniqueLogin> selectByPhoneFromWebList(String phone) {
+		return uniqueLoginMapper.selectByPhoneFromWebList(phone);
+	}
+	
 	@Override
 	public UniqueLogin selectBySessionId(String sessionId) {
 		return uniqueLoginMapper.selectBySessionId(sessionId);
@@ -62,5 +69,7 @@ public class UniqueLoginServiceImpl implements UniqueLoginService{
 		// TODO Auto-generated method stub
 		return uniqueLoginMapper.deleteByTokenAndClientId(token, clientId);
 	}
+
+
 
 }

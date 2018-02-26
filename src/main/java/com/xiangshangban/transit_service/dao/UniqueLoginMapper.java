@@ -1,5 +1,7 @@
 package com.xiangshangban.transit_service.dao;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -12,6 +14,8 @@ public interface UniqueLoginMapper {
 	
 	UniqueLogin selectByPhoneFromWeb(String phone);
 	
+	List<UniqueLogin> selectByPhoneFromWebList(String phone);
+		
 	UniqueLogin selectBySessionId(String sessionId);
 	
 	UniqueLogin selectByToken(String token);
