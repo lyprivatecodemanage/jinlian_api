@@ -11,6 +11,8 @@ public class UpdateVersion {
 	private String address;
 	
 	private String appType;
+	
+	private String updateTime;
 
 	public String getId() {
 		return id;
@@ -64,5 +66,13 @@ public class UpdateVersion {
 		this.name = name;
 		this.address = address;
 		this.appType = appType;
+	}
+
+	public String getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(String updateTime) {
+		this.updateTime = updateTime;
 	}
 }

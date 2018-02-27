@@ -7,16 +7,18 @@
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="address" jdbcType="VARCHAR" property="address" />
     <result column="app_type" jdbcType="VARCHAR" property="appType" />
+    <result column="update_time" jdbcType="VARCHAR" property="updateTime" />
   </resultMap>
   
   <sql id="Base_list">
-  	id,code,name,address,app_type
+  	id,code,name,address,app_type,update_time
   </sql>
   
   <select id="FindNewFile" resultMap="BaseResultMap">
   	SELECT 
 	<include refid="Base_list"/>
 	FROM update_version
+	WHERE app_type=#{appType}
 	ORDER BY code DESC
 	LIMIT 1
   </select>

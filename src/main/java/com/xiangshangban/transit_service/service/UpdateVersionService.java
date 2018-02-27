@@ -5,6 +5,10 @@ import com.xiangshangban.transit_service.bean.UpdateVersion;
 
 public interface UpdateVersionService {
 
-	//查看android 最新版本信息
-	UpdateVersion FindNewFile();
+	/**
+	 * 
+	 * @param appType 0：安卓  1：ios
+	 * @return
+	 */
+	UpdateVersion FindNewFile(String appType);
 }

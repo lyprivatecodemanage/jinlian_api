@@ -17,8 +17,8 @@ import com.xiangshangban.transit_service.bean.UpdateVersion;
 import com.xiangshangban.transit_service.service.UpdateVersionService;
 
 @RestController
-@RequestMapping("/androidController")
-public class AndroidController {
+@RequestMapping("/IOSController")
+public class IOSController {
 
 	private Logger logger = Logger.getLogger(AdministratorController.class);
 
@@ -45,7 +45,7 @@ public class AndroidController {
 		}
 		
 		try {
-			UpdateVersion uv = updateVersionService.FindNewFile("0");
+			UpdateVersion uv = updateVersionService.FindNewFile("1");
 			
 			map.put("UpdateVersion",JSONObject.toJSON(uv));
 			map.put("returnCode","3000");
