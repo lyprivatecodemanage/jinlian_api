@@ -233,7 +233,7 @@ public class AdministratorController {
 		
 		// 初始化redis
 		RedisUtil redis = RedisUtil.getInstance();
-		// 从redis取出短信验证码
+		// 从redis取出手机号
 		String phone = redis.new Hash().hget(request.getSession().getId(), "session");
 		
 		Uusers user = uusersService.selectByPhone(phone,"0");
@@ -264,6 +264,16 @@ public class AdministratorController {
 				
 				//给新管理员添加历史管理员记录
 				uusersRolesService.updateAdministrator(newUserId, companyId, userId,new Uroles().admin_role);
+				
+				List<UusersRolesKey> urList = uusersRolesService.selectCompanyByUserIdRoleId(newUserId, new Uroles().admin_role);
+				
+				if(urList.size()==1){
+				 	UserCompanyDefault uc = userCompanyService.selectBySoleUserId(newUserId,"0");
+					
+				 	userCompanyService.updateUserCompanyCoption(newUserId, uc.getCompanyId(), "2","0");
+				 	
+				 	userCompanyService.updateUserCompanyCoption(newUserId, companyId, "1","0");
+				}
 			}else{
 				if(huids.split(",").length>2){
 					
@@ -290,7 +300,7 @@ public class AdministratorController {
 				
 				companyService.updateByPrimaryKeySelective(c);
 				
-				List<UusersRolesKey> urList = uusersRolesService.selectCompanyByUserIdRoleId(userId, new Uroles().admin_role);
+				List<UusersRolesKey> urList = uusersRolesService.selectCompanyByUserIdRoleId(newUserId, new Uroles().admin_role);
 				
 				if(urList.size()==1){
 				 	UserCompanyDefault uc = userCompanyService.selectBySoleUserId(newUserId,"0");
