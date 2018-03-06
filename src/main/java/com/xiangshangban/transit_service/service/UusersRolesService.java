@@ -17,7 +17,7 @@ public interface UusersRolesService {
     int insertSelective(UusersRolesKey record);
     
 	// 查看当前管理员及历史管理员
-	UusersRolesKey SelectAdministrator(String companyId, String roleId);
+    UusersRolesKey SelectAdministrator(String companyId, String roleId);
 
 	int updateAdminClearHist(String userId,String roleId,String companyId);
 	

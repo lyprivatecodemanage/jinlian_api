@@ -289,6 +289,16 @@ public class AdministratorController {
 				c.setUser_name(u.getPhone());
 				
 				companyService.updateByPrimaryKeySelective(c);
+				
+				List<UusersRolesKey> urList = uusersRolesService.selectCompanyByUserIdRoleId(userId, new Uroles().admin_role);
+				
+				if(urList.size()==1){
+				 	UserCompanyDefault uc = userCompanyService.selectBySoleUserId(newUserId,"0");
+					
+				 	userCompanyService.updateUserCompanyCoption(newUserId, uc.getCompanyId(), "2","0");
+				 	
+				 	userCompanyService.updateUserCompanyCoption(newUserId, companyId, "1","0");
+				}
 			}
 			
 			//将原来管理员的默认公司修改为其他拥有管理员身份的公司
