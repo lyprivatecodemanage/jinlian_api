@@ -70,6 +70,8 @@ public class Company {
 	private String company_type;
 	
 	private String defaultOption;
+	
+	private String history_user_ids;
 
 	public Company(String company_id, String company_name, String company_english_name,
 			String company_abbreviation_name, String company_address_detail, String company_phone, String company_email,
@@ -80,7 +82,7 @@ public class Company {
 			String end_business_time, String dateof_approval, String registration_authority, String registered_address,
 			String company_creat_time, String company_area, String company_code, String company_logo,
 			String company_approve, String company_personal_name, String user_name, String company_no,
-			String company_type) {
+			String company_type,String history_user_ids) {
         this.company_id = company_id;
         this.company_name = company_name;
         this.company_english_name = company_english_name;
@@ -115,13 +117,22 @@ public class Company {
         this.user_name = user_name;
         this.company_no = company_no;
 		this.company_type = company_type;
+		this.history_user_ids = history_user_ids;
     }
 
     public Company() {
         super();
     }
 
-    public String getCompany_id() {
+    public String getHistory_user_ids() {
+		return history_user_ids;
+	}
+
+	public void setHistory_user_ids(String history_user_ids) {
+		this.history_user_ids = history_user_ids;
+	}
+
+	public String getCompany_id() {
         return company_id;
     }
 

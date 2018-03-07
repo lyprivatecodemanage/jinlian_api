@@ -67,7 +67,7 @@ public class AdministratorController {
 		RedisUtil redis = RedisUtil.getInstance();
 				// 从redis取出短信验证码
 		String phone = redis.new Hash().hget(request.getSession().getId(), "session");
-						
+		
 		Uusers user = uusersService.selectByPhone(phone,"0");
 				
 		String companyId = userCompanyService.selectBySoleUserId(user.getUserid(),"0").getCompanyId();
@@ -81,17 +81,18 @@ public class AdministratorController {
 		try{
 			Company company = companyService.selectByPrimaryKey(companyId);
 
-			UusersRolesKey uusersRolesKey = uusersRolesService.SelectAdministrator(companyId, new Uroles().admin_role);
+			List<UusersRolesKey> uusersRolesKey = uusersRolesService.SelectAdministrator(companyId, new Uroles().admin_role);
 			
-			// 结果为空时代表该公司暂未有管理员
-			if(null != uusersRolesKey && !"".equals(uusersRolesKey)){
+			Company c = companyService.selectByPrimaryKey(companyId);
+			
+			if(c!=null){
 				// 查看历史管理员数据
-				if (StringUtils.isNotEmpty(uusersRolesKey.gethistoryUserIds())) {
-					if(uusersRolesKey.gethistoryUserIds().split(",").length>1){
-						String [] userids = uusersRolesKey.gethistoryUserIds().split(",");
+				if (StringUtils.isNotEmpty(c.getHistory_user_ids())) {
+					if(c.getHistory_user_ids().split(",").length>1){
+						String [] userids = c.getHistory_user_ids().split(",");
 						
 						for (int i = 0; i < userids.length; i++) {
-							Employee emp = uusersService.SeletctEmployeeByUserId(userids[userids.length-i-1],uusersRolesKey.getCompanyId());
+							Employee emp = uusersService.SeletctEmployeeByUserId(userids[userids.length-i-1],companyId);
 							
 							if(emp!=null && StringUtils.isNotEmpty(emp.getEmployeeImgUrl())){
 								String employeeImgUrlPath = oSSFileService.getPathByKey(company.getCompany_no(),"portrait", emp.getEmployeeImgUrl());
@@ -105,7 +106,7 @@ public class AdministratorController {
 							list.add(emp);
 						}
 					}else{
-						Employee emp = uusersService.SeletctEmployeeByUserId(uusersRolesKey.gethistoryUserIds(),uusersRolesKey.getCompanyId());
+						Employee emp = uusersService.SeletctEmployeeByUserId(c.getHistory_user_ids(),companyId);
 						
 						if(emp!=null && StringUtils.isNotEmpty(emp.getEmployeeImgUrl())){
 							String employeeImgUrlPath = oSSFileService.getPathByKey(company.getCompany_no(),"portrait", emp.getEmployeeImgUrl());
@@ -122,20 +123,26 @@ public class AdministratorController {
 					map.put("data",JSON.toJSON(list));
 				}
 			}
-			// 查询当前管理员信息
-			Employee employee = uusersService.SeletctEmployeeByUserId(uusersRolesKey.getUserId(),uusersRolesKey.getCompanyId());
 			
-			if(employee!=null && StringUtils.isNotEmpty(employee.getEmployeeImgUrl())){
-				String employeeImgUrlPath = oSSFileService.getPathByKey(company.getCompany_no(),"portrait", employee.getEmployeeImgUrl());
+			List<Employee> empList = new ArrayList<>();
+			
+			for (UusersRolesKey urk : uusersRolesKey) {
+				// 查询当前管理员信息
+				Employee employee = uusersService.SeletctEmployeeByUserId(urk.getUserId(),companyId);
 				
-				if(StringUtils.isNotEmpty(employeeImgUrlPath)){
-					employee.setEmployeeImgUrl(employeeImgUrlPath);
+				if(employee!=null && StringUtils.isNotEmpty(employee.getEmployeeImgUrl())){
+					String employeeImgUrlPath = oSSFileService.getPathByKey(company.getCompany_no(),"portrait", employee.getEmployeeImgUrl());
+					
+					if(StringUtils.isNotEmpty(employeeImgUrlPath)){
+						employee.setEmployeeImgUrl(employeeImgUrlPath);
+					}
+				}else{
+					employee.setEmployeeImgUrl("http://xiangshangban.oss-cn-hangzhou.aliyuncs.com/test/sys/portrait/default.png");
 				}
-			}else{
-				employee.setEmployeeImgUrl("http://xiangshangban.oss-cn-hangzhou.aliyuncs.com/test/sys/portrait/default.png");
+				
+				empList.add(employee);
 			}
-			
-			map.put("admin",JSON.toJSON(employee));
+			map.put("admin",JSON.toJSON(empList));
 			map.put("returnCode","3000");
 			map.put("message", "数据请求成功");
 			return map;
@@ -240,16 +247,23 @@ public class AdministratorController {
 		
 		JSONObject obj = JSON.parseObject(jsonString);
 		String newUserId = obj.getString("newUserId");
+		
+		if(StringUtils.isEmpty(newUserId)){
+			map.put("returnCode","3006");
+			map.put("message", "必传参数为空");
+			return map;
+		}
+		
 		String companyId = userCompanyService.selectBySoleUserId(user.getUserid(),"0").getCompanyId();
 		
 		try {
-			UusersRolesKey uusersRolesKey = uusersRolesService.SelectAdministrator(companyId, new Uroles().admin_role);
-
+			Company company = companyService.selectByPrimaryKey(companyId);
+			
 			// 获取现在管理员ID
-			String userId = uusersRolesKey.getUserId();
+			String userId = user.getUserid();
 			
 			// 获取历史管理员
-			String huids = uusersRolesKey.gethistoryUserIds();
+			String huids = company.getHistory_user_ids();
 			
 			if(userId.equals(newUserId)){
 				map.put("returnCode", "4025");
@@ -257,14 +271,22 @@ public class AdministratorController {
 				return map;
 			}
 			
+			//更换管理员角色为普通员工角色
+			uusersRolesService.updateAdminClearHist(userId,new Uroles().user_role,companyId);
+			
+			//给新管理员更换为管理员角色
+			uusersRolesService.updateAdministrator(newUserId, companyId,new Uroles().admin_role);
+			
 			//如果历史管理员为空
 			if(StringUtils.isEmpty(huids)){
-				//删除上一位管理员的 历史管理员记录
-				uusersRolesService.updateAdminClearHist(userId,new Uroles().user_role,companyId);
 				
-				//给新管理员添加历史管理员记录
-				uusersRolesService.updateAdministrator(newUserId, companyId, userId,new Uroles().admin_role);
+				Company cp = new Company();
+				cp.setCompany_id(companyId);
+				cp.setHistory_user_ids(userId);
 				
+				companyService.updateByPrimaryKeySelective(cp);
+				
+				//被设为管理员的人员 若之前不存在管理员角色时 被该公司被修改为默认公司
 				List<UusersRolesKey> urList = uusersRolesService.selectCompanyByUserIdRoleId(newUserId, new Uroles().admin_role);
 				
 				if(urList.size()==1){
@@ -284,11 +306,13 @@ public class AdministratorController {
 				}else{
 					historyUserIds = huids +","+userId;
 				}
-				//删除上一位管理员的 历史管理员记录
-				uusersRolesService.updateAdminClearHist(userId,new Uroles().user_role,companyId);
+				//新建公司对象 给与公司ID和更改后的历史管理员列表
+				Company cp = new Company();
+				cp.setCompany_id(companyId);
+				cp.setHistory_user_ids(historyUserIds);
 				
-				//将 历史管理员记录更新到新的管理员记录上
-				uusersRolesService.updateAdministrator(newUserId, companyId, historyUserIds,new Uroles().admin_role);
+				//将 历史管理员记录更新到公司历史管理员列上
+				companyService.updateByPrimaryKeySelective(cp);
 				
 				Uusers u = uusersService.selectById(newUserId);
 				
@@ -300,6 +324,7 @@ public class AdministratorController {
 				
 				companyService.updateByPrimaryKeySelective(c);
 				
+				//被设为管理员的人员 若之前不存在管理员角色时 被该公司被修改为默认公司
 				List<UusersRolesKey> urList = uusersRolesService.selectCompanyByUserIdRoleId(newUserId, new Uroles().admin_role);
 				
 				if(urList.size()==1){
@@ -332,6 +357,104 @@ public class AdministratorController {
 			map.put("returnCode", "3000");
 			map.put("message", "数据请求成功");
 			return map;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			logger.info(e);
+			map.put("returnCode", "3001");
+			map.put("message", "服务器错误");
+			return map;
+		}
+	}
+	
+	/**
+	 * 焦振 / 新增管理员
+	 * @param jsonString
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/InsertAdministrator",produces = "application/json;charset=utf-8",method = RequestMethod.POST)
+	public Map<String,Object> InsertAdministrator(@RequestBody String jsonString,HttpServletRequest request){
+		Map<String,Object> map = new HashMap<>();
+		
+		JSONObject obj = JSON.parseObject(jsonString);
+		String userId = obj.getString("userId");
+		
+		if(StringUtils.isEmpty(userId)){
+			map.put("returnCode","3006");
+			map.put("message", "必传参数为空");
+			return map;
+		}
+		// 初始化redis
+		RedisUtil redis = RedisUtil.getInstance();
+		// 从redis取出手机号
+		String phone = redis.new Hash().hget(request.getSession().getId(), "session");
+		
+		String userid = uusersService.selectByPhone(phone,"0").getUserid();
+		
+		if(userid.equals(userId)){
+			map.put("returnCode", "4033");
+			map.put("message", "新增的管理员不能是当前管理员");
+			return map;
+		}
+		
+		try {
+			String companyId = userCompanyService.selectBySoleUserId(userId,"0").getCompanyId();
+			
+			//更换管理员角色为普通员工角色
+			uusersRolesService.updateAdminClearHist(userId,new Uroles().admin_role,companyId);
+			
+			map.put("returnCode", "3000");
+			map.put("message", "数据请求成功");
+			return map;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			logger.info(e);
+			map.put("returnCode", "3001");
+			map.put("message", "服务器错误");
+			return map;
+		}
+	}
+	
+	
+	/**
+	 * 焦振 / 删除管理员
+	 * @param jsonString
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="/deleteAdministrator",produces = "application/json;charset=utf-8",method = RequestMethod.POST)
+	public Map<String,Object> deleteAdministrator(@RequestBody String jsonString,HttpServletRequest request){
+		Map<String,Object> map = new HashMap<>();
+		
+		JSONObject obj = JSON.parseObject(jsonString);
+		String userId = obj.getString("userId");
+		
+		if(StringUtils.isEmpty(userId)){
+			map.put("returnCode","3006");
+			map.put("message", "必传参数为空");
+			return map;
+		}
+		
+		try {
+			String companyId = userCompanyService.selectBySoleUserId(userId,"0").getCompanyId();
+			
+			List<UusersRolesKey> list = uusersRolesService.SelectAdministrator(companyId, new Uroles().admin_role);
+			
+			//当该公司的管理员人数大于1人则可操作
+			if(list.size()>1){
+				//更换管理员角色为普通员工角色
+				uusersRolesService.updateAdminClearHist(userId,new Uroles().user_role,companyId);
+				
+				map.put("returnCode", "3000");
+				map.put("message", "数据请求成功");
+				return map;
+			}else{
+				map.put("returnCode", "4032");
+				map.put("message", "管理员不能为空");
+				return map;
+			}
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();

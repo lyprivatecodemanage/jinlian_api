@@ -75,14 +75,14 @@
   
   <update id="updateAdminClearHist">
   	update organization.u_users_roles
-  	set history_user_ids = '',roleid = #{roleId,jdbcType=VARCHAR}
+  	set roleid = #{roleId,jdbcType=VARCHAR}
   	where userid = #{userId,jdbcType=VARCHAR}
   	and company_id = #{companyId,jdbcType=VARCHAR}
   </update>
   
   <update id="updateAdministrator">
   	update organization.u_users_roles
-  	set history_user_ids = #{historyUserIds,jdbcType=VARCHAR},roleid = #{roleId,jdbcType=VARCHAR}
+  	set roleid = #{roleId,jdbcType=VARCHAR}
   	where userid = #{newUserId,jdbcType=VARCHAR}
   	and company_id = #{companyId,jdbcType=VARCHAR}
   </update>

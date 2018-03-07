@@ -37,6 +37,7 @@
       <arg column="user_name" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="company_no" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="company_type" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="history_user_ids" javaType="java.lang.String" jdbcType="VARCHAR"/>
     </constructor>
   </resultMap>
   <sql id="Base_Column_List">
@@ -46,7 +47,7 @@
     business_registration_number, uniform_credit_code, type_enterprise, taxpayer_registration_number, 
     industry_type, begin_business_time, end_business_time, dateof_approval, registration_authority, 
     registered_address, company_creat_time, company_area, company_code, company_logo, 
-    company_approve, company_personal_name, user_name, company_no,company_type
+    company_approve, company_personal_name, user_name, company_no,company_type,history_user_ids
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
@@ -191,6 +192,9 @@
       <if test="company_type != null">
       	company_type,
       </if>
+      <if test="history_user_ids != null">
+      	history_user_ids,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="company_id != null">
@@ -295,6 +299,9 @@
       <if test="company_type != null">
       	#{company_type,jdbcType=VARCHAR}
       </if>
+      <if test="history_user_ids != null">
+      	#{history_user_ids,jdbcType=VARCHAR}
+      </if>
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.xiangshangban.transit_service.bean.Company">
@@ -398,6 +405,9 @@
       </if>
       <if test="company_type != null">
       	company_type = #{company_type,jdbcType=VARCHAR}
+      </if>
+      <if test="history_user_ids != null">
+      	history_user_ids = #{history_user_ids,jdbcType=VARCHAR}
       </if>
     </set>
     where company_id = #{company_id,jdbcType=VARCHAR}
