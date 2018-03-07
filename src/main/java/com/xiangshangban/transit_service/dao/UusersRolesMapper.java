@@ -17,13 +17,13 @@ public interface UusersRolesMapper {
     int insertSelective(UusersRolesKey record);
     
 	// 查看当前管理员及历史管理员
-	UusersRolesKey SelectAdministrator(@Param("companyId") String companyId, @Param("roleId") String roleId);
+	List<UusersRolesKey> SelectAdministrator(@Param("companyId") String companyId, @Param("roleId") String roleId);
 	
 	int updateAdminClearHist(@Param("userId") String userId,@Param("roleId")String roleId,@Param("companyId")String companyId);
     
 	// 修改管理员
 	int updateAdministrator(@Param("newUserId") String newUserId,
-			@Param("companyId") String companyId, @Param("historyUserIds") String historyUserIds,
+			@Param("companyId") String companyId,
 			@Param("roleId") String roleId);
 
 	// 根据用户ID查询权限url地址

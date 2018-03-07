@@ -17,12 +17,12 @@ public interface UusersRolesService {
     int insertSelective(UusersRolesKey record);
     
 	// 查看当前管理员及历史管理员
-    UusersRolesKey SelectAdministrator(String companyId, String roleId);
+    List<UusersRolesKey> SelectAdministrator(String companyId, String roleId);
 
 	int updateAdminClearHist(String userId,String roleId,String companyId);
 	
 	// 修改管理员
-	int updateAdministrator(String newUserId, String companyId, String historyUserIds, String roleId);
+	int updateAdministrator(String newUserId, String companyId, String roleId);
     
 	// 根据用户ID查询权限url地址
     List<Upermission> SelectUserIdByPermission(String userId,String companyId);

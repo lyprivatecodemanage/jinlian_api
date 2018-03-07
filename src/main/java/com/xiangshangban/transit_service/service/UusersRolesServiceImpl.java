@@ -36,16 +36,16 @@ public class UusersRolesServiceImpl implements UusersRolesService {
 	}
 
 	@Override
-	public UusersRolesKey SelectAdministrator(String companyId, String roleId) {
+	public List<UusersRolesKey> SelectAdministrator(String companyId, String roleId) {
 		// TODO Auto-generated method stub
 		return uusersRolesMapper.SelectAdministrator(companyId, roleId);
 	}
 
 	@Override
-	public int updateAdministrator(String newUserId, String companyId, String historyUserIds,
+	public int updateAdministrator(String newUserId, String companyId,
 			String roleId) {
 		// TODO Auto-generated method stub
-		return uusersRolesMapper.updateAdministrator(newUserId, companyId, historyUserIds, roleId);
+		return uusersRolesMapper.updateAdministrator(newUserId, companyId, roleId);
 	}
 
 	@Override
