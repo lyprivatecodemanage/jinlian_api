@@ -21,22 +21,22 @@ import org.hsqldb.lib.StringUtil;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.xiangshangban.transit_service.bean.Company;
 import com.xiangshangban.transit_service.bean.Login;
+import com.xiangshangban.transit_service.bean.PhoneClientId;
 import com.xiangshangban.transit_service.bean.UniqueLogin;
 import com.xiangshangban.transit_service.bean.Uroles;
 import com.xiangshangban.transit_service.bean.UserCompanyDefault;
 import com.xiangshangban.transit_service.bean.Uusers;
 import com.xiangshangban.transit_service.service.CompanyService;
 import com.xiangshangban.transit_service.service.LoginService;
+import com.xiangshangban.transit_service.service.PhoneClientIdService;
 import com.xiangshangban.transit_service.service.UniqueLoginService;
 import com.xiangshangban.transit_service.service.UserCompanyService;
 import com.xiangshangban.transit_service.service.UusersRolesService;
@@ -46,10 +46,6 @@ import com.xiangshangban.transit_service.util.FormatUtil;
 import com.xiangshangban.transit_service.util.PropertiesUtils;
 import com.xiangshangban.transit_service.util.RedisUtil;
 import com.xiangshangban.transit_service.util.YtxSmsUtil;
-
-import redis.clients.jedis.Jedis;
-
-import com.xiangshangban.transit_service.util.RedisUtil.Hash;
 @RestController
 @RequestMapping("/loginController")
 public class LoginController {
@@ -66,6 +62,8 @@ public class LoginController {
 	private UusersRolesService uusersRolesService;
 	@Autowired
 	private UserCompanyService userCompanyService;
+	@Autowired
+	private PhoneClientIdService phoneClientIdService;
 	
 	/**
 	 * @author 李业/获取二维码
@@ -531,8 +529,38 @@ public class LoginController {
 			UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(phone, smsCode);
 			Subject subject = SecurityUtils.getSubject();
 			subject.login(usernamePasswordToken); // 完成登录
+			PhoneClientId newPhoneClientId = new PhoneClientId();
+			newPhoneClientId.setEmployeeId(result.get("userId").toString());
+			newPhoneClientId.setCompanyId(result.get("companyId").toString());
+			newPhoneClientId.setPhone(phone.substring(0, 11));
+			newPhoneClientId.setClientId(clientId);
 			if (Integer.valueOf(type) == 1) {
 				result.put("token", token);
+				//保存当前app登录的clientId与账号的关系
+				PhoneClientId phoneClientIdByPhone = phoneClientIdService.selectByPhone(phone.substring(0, 11));
+				PhoneClientId phoneClientIdByClientId = phoneClientIdService.selectByClientId(clientId);
+				if(phoneClientIdByPhone==null&&phoneClientIdByClientId==null){
+					//添加新的关联关系
+					phoneClientIdService.insertPhoneClientId(newPhoneClientId);
+				}else{
+					if(phoneClientIdByPhone!=null){//已绑定clientId的手机号
+						//对比表中查询出的clientId与当前登录传得clientId是否相同
+						if(phoneClientIdByPhone.getClientId()!=clientId){//不相同,则删除之前的关联记录,添加当前的关联记录
+							int i = phoneClientIdService.deletePhoneClientIdByPhone(phone);
+							if(phoneClientIdByClientId!=null){
+								//删除当前clientId绑定的账号
+								int n = phoneClientIdService.deletePhoneClientIdByClientId(clientId);
+							}
+							phoneClientIdService.insertPhoneClientId(newPhoneClientId);
+						}
+					}else{//未绑定clientId的手机号
+						if(phoneClientIdByClientId!=null){
+							//删除当前clientId绑定的账号
+							int n = phoneClientIdService.deletePhoneClientIdByClientId(clientId);
+						}
+						phoneClientIdService.insertPhoneClientId(newPhoneClientId);
+					}
+				}
 			}
 			session.setAttribute("phone", phone);
 			result.put("message", "登录成功!");

@@ -9,6 +9,7 @@ public class Client {
 
     private String model;
 
+    private String createTime;
     public String getClientId() {
         return clientId;
     }
@@ -40,8 +41,17 @@ public class Client {
     public void setModel(String model) {
         this.model = model;
     }
+    
+    
+    public String getCreateTime() {
+		return createTime;
+	}
 
-    public Client() {
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
+	}
+
+	public Client() {
     }
 
     public Client(String clientId, String type, String imei, String model) {
