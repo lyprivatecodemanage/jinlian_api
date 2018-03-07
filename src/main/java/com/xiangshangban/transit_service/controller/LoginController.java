@@ -546,7 +546,7 @@ public class LoginController {
 					if(phoneClientIdByPhone!=null){//已绑定clientId的手机号
 						//对比表中查询出的clientId与当前登录传得clientId是否相同
 						if(phoneClientIdByPhone.getClientId()!=clientId){//不相同,则删除之前的关联记录,添加当前的关联记录
-							int i = phoneClientIdService.deletePhoneClientIdByPhone(phone);
+							int i = phoneClientIdService.deletePhoneClientIdByPhone(phone.substring(0, 11));
 							if(phoneClientIdByClientId!=null){
 								//删除当前clientId绑定的账号
 								int n = phoneClientIdService.deletePhoneClientIdByClientId(clientId);
