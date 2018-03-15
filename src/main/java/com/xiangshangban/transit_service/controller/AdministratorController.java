@@ -445,7 +445,7 @@ public class AdministratorController {
 		}
 		
 		try {
-			String companyId = userCompanyService.selectBySoleUserId(userId,"0").getCompanyId();
+			String companyId = userCompanyService.selectBySoleUserId(user.getUserid(),"0").getCompanyId();
 			
 			List<UusersRolesKey> list = uusersRolesService.SelectAdministrator(companyId, new Uroles().admin_role);
 			
@@ -453,6 +453,23 @@ public class AdministratorController {
 			if(list.size()>1){
 				//更换管理员角色为普通员工角色
 				uusersRolesService.updateAdminClearHist(userId,new Uroles().user_role,companyId);
+				
+				List<UusersRolesKey> urlist = uusersRolesService.selectCompanyByUserIdRoleId(userId, new Uroles().admin_role);
+				
+				if(urlist!=null&&urlist.size()!=0){
+					
+					List<UserCompanyDefault> uclist = new ArrayList<>();
+					
+					for (UusersRolesKey urk : urlist) {
+						uclist.add(userCompanyService.selectByUserIdAndCompanyId(userId, urk.getCompanyId(),"0"));
+					}
+					
+					int num = userCompanyService.updateUserCompanyCoption(userId, companyId, new UserCompanyDefault().status_2,"0");
+					
+					if(num>0){
+						userCompanyService.updateUserCompanyCoption(userId, urlist.get(0).getCompanyId(), new UserCompanyDefault().status_1,"0");
+					}
+				}
 				
 				if(user.getUserid().equals(userId)){
 					map.put("flag", "1");
