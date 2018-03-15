@@ -399,7 +399,7 @@ public class AdministratorController {
 		}
 		
 		try {
-			String companyId = userCompanyService.selectBySoleUserId(userId,"0").getCompanyId();
+			String companyId = userCompanyService.selectBySoleUserId(userid,"0").getCompanyId();
 			
 			//更换管理员角色为普通员工角色
 			uusersRolesService.updateAdminClearHist(userId,new Uroles().admin_role,companyId);
@@ -428,6 +428,13 @@ public class AdministratorController {
 	public Map<String,Object> deleteAdministrator(@RequestBody String jsonString,HttpServletRequest request){
 		Map<String,Object> map = new HashMap<>();
 		
+		// 初始化redis
+		RedisUtil redis = RedisUtil.getInstance();
+		// 从redis取出手机号
+		String phone = redis.new Hash().hget(request.getSession().getId(), "session");
+				
+		Uusers user = uusersService.selectByPhone(phone,"0");
+		
 		JSONObject obj = JSON.parseObject(jsonString);
 		String userId = obj.getString("userId");
 		
@@ -446,6 +453,12 @@ public class AdministratorController {
 			if(list.size()>1){
 				//更换管理员角色为普通员工角色
 				uusersRolesService.updateAdminClearHist(userId,new Uroles().user_role,companyId);
+				
+				if(user.getUserid().equals(userId)){
+					map.put("flag", "1");
+				}else{
+					map.put("flag", "0");
+				}
 				
 				map.put("returnCode", "3000");
 				map.put("message", "数据请求成功");
