@@ -689,7 +689,7 @@ public class LoginController {
 			result.put("returnCode", "3006");
 			return result;
 		}
-		boolean phoneFlag = Pattern.matches("1[345678]\\d{9}", phone);
+		boolean phoneFlag = Pattern.matches("1[3456789]\\d{9}", phone);
 		if(!phoneFlag){
 			result.put("message", "手机号格式不正确");
 			result.put("returnCode", "4024");
