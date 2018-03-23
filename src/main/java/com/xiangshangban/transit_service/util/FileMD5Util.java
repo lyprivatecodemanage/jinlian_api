@@ -9,11 +9,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 public class FileMD5Util {
-	private static final Log LOG = LogFactory.getLog(FileMD5Util.class);
+	private static final Logger LOG = Logger.getLogger(FileMD5Util.class);
 	protected static char hexDigits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9','a', 'b', 'c', 'd', 'e', 'f' };
 	 private final static String[] SaltDigits = {"." , "," , "/" , ";" , "!" , "@" , "#" , "$" , "%" , "&"};
 	protected static MessageDigest messagedigest = null;
@@ -26,12 +25,14 @@ public class FileMD5Util {
 	   }
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 //	   long begin = System.currentTimeMillis();
 //	   File big = new File("D:/SOFTS/apache-maven.rar");
 //	   String md5=getFileMD5String(big);
 //	   long end = System.currentTimeMillis();
 //	   LOG.info("md5:"+md5+" time:"+((end-begin)/1000)+"s");
+		String str = FileMD5Util.getMD5String("0;23C070CA90034BA9AFD50A39F090B037;2018-03-22 00:00:00;2018-03-23 00:00:00");
+		System.out.println(str);
 	}
 
 
